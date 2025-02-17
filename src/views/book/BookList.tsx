@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Table from '@/components/ui/Table'
 import Input from '@/components/ui/Input'
 import {
@@ -15,7 +16,8 @@ import {
 import { rankItem } from '@tanstack/match-sorter-utils'
 import type { ColumnDef, FilterFn, ColumnFiltersState } from '@tanstack/react-table'
 import type { InputHTMLAttributes } from 'react'
-import { bookstoreGetAll, IBookstore } from '@/services/bookstoreService'
+import { IBook, bookGetAll } from '@/services/bookService'
+import Button from '@/components/ui/Button'
 
 interface DebouncedInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'size' | 'prefix'> {
     value: string | number
@@ -74,44 +76,29 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
     return itemRank.passed
 }
 
-const BookstoreList = () => {
+const BookList = () => {
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [globalFilter, setGlobalFilter] = useState('')
+    const navigate = useNavigate();
 
-    const columns = useMemo<ColumnDef<IBookstore>[]>(
+    const columns = useMemo<ColumnDef<IBook>[]>(
         () => [
-            { header: 'Título', accessorKey: 'book.title',  },
-            { header: 'ISBN', accessorKey: 'book.isbn' },
-            { header: 'Loja', accessorKey: 'store.name' },
-            { header: 'Estoque', accessorKey: 'book.amount' },
-            { header: 'Consg.', accessorKey: 'amount'},
-            {
-                header: 'Data Consig.',
-                accessorKey: 'consignmentDate',
-                cell: props => {
-                    const df = new Date(props.row.original.consignmentDate)
-                    return `${df.getDay()}/${df.getMonth()}/${df.getFullYear()}`
-                }
-            },
-            {
-                header: 'Validade',
-                accessorKey: 'returnDate',
-                cell: props => {
-                    const df = new Date(props.row.original.returnDate)
-                    return `${df.getDay()}/${df.getMonth()}/${df.getFullYear()}`
-                }
-            }
+            { header: 'Título', accessorKey: 'title',  },
+            { header: 'ISBN', accessorKey: 'isbn' },
+            { header: 'Editora', accessorKey: 'publishier.name' },
+            { header: 'Edição', accessorKey: 'edition' },
+            { header: 'Quantidade', accessorKey: 'amount'}
         ],
         []
     )
 
-    const [bookstoreData, setBookStoreData] = useState<IBookstore[]>([])
+    const [bookData, setBookData] = useState<IBook[]>([])
 
     useEffect(() => {
         async function getBookstore() {
             try {
-                const resp = await bookstoreGetAll()
-                setBookStoreData(resp.data);
+                const resp = await bookGetAll()
+                setBookData(resp.data);
             } catch(e) {
                 console.log(e)
             }
@@ -120,7 +107,7 @@ const BookstoreList = () => {
     }, [])
 
     const table = useReactTable({
-        data: bookstoreData,
+        data: bookData,
         columns,
         filterFns: {
             fuzzy: fuzzyFilter,
@@ -145,12 +132,16 @@ const BookstoreList = () => {
 
     return (
         <>
-            <DebouncedInput
-                value={globalFilter ?? ''}
-                className="p-2 font-lg shadow border border-block"
-                placeholder="Search all columns..."
-                onChange={(value) => setGlobalFilter(String(value))}
-            />
+            <div className='flex justify-end'>
+                <DebouncedInput
+                    value={globalFilter ?? ''}
+                    className="p-2 font-lg shadow border border-block"
+                    placeholder="Search all columns..."
+                    onChange={(value) => setGlobalFilter(String(value))}
+                />
+                <Button variant="solid" className='ml-3' onClick={() => navigate('/livro/novo')}>Novo</Button>
+            </div>
+
             <Table>
                 <THead>
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -193,7 +184,7 @@ const BookstoreList = () => {
                 <TBody>
                     {table.getRowModel().rows.map((row) => {
                         return (
-                            <Tr key={row.id} /*onClick={() => navigate(`/estoque/${row.original.id}`)}*/>
+                            <Tr key={row.id} onClick={() => navigate(`/livro/${row.original.id}`)}>
                                 {row.getVisibleCells().map((cell) => {
                                     return (
                                         <Td key={cell.id}>
@@ -213,4 +204,4 @@ const BookstoreList = () => {
     )
 }
 
-export default BookstoreList
+export default BookList

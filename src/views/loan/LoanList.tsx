@@ -15,7 +15,7 @@ import {
 import { rankItem } from '@tanstack/match-sorter-utils'
 import type { ColumnDef, FilterFn, ColumnFiltersState } from '@tanstack/react-table'
 import type { InputHTMLAttributes } from 'react'
-import { bookstoreGetAll, IBookstore } from '@/services/bookstoreService'
+import { ILoan, loanGetAll } from '@/services/loanService'
 
 interface DebouncedInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'size' | 'prefix'> {
     value: string | number
@@ -74,22 +74,22 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
     return itemRank.passed
 }
 
-const BookstoreList = () => {
+const LoanList = () => {
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [globalFilter, setGlobalFilter] = useState('')
 
-    const columns = useMemo<ColumnDef<IBookstore>[]>(
+    const columns = useMemo<ColumnDef<ILoan>[]>(
         () => [
-            { header: 'Título', accessorKey: 'book.title',  },
+            { header: 'Título', accessorKey: 'book.title', },
             { header: 'ISBN', accessorKey: 'book.isbn' },
-            { header: 'Loja', accessorKey: 'store.name' },
-            { header: 'Estoque', accessorKey: 'book.amount' },
-            { header: 'Consg.', accessorKey: 'amount'},
+            { header: 'Local', accessorKey: 'branch.name' },
+            { header: 'Quantidade', accessorKey: 'book.amount' },
+            { header: 'Empres.', accessorKey: 'amount'},
             {
-                header: 'Data Consig.',
-                accessorKey: 'consignmentDate',
+                header: 'Data Empres.',
+                accessorKey: 'loanDate',
                 cell: props => {
-                    const df = new Date(props.row.original.consignmentDate)
+                    const df = new Date(props.row.original.loanDate)
                     return `${df.getDay()}/${df.getMonth()}/${df.getFullYear()}`
                 }
             },
@@ -105,22 +105,22 @@ const BookstoreList = () => {
         []
     )
 
-    const [bookstoreData, setBookStoreData] = useState<IBookstore[]>([])
+    const [loanData, setLoanData] = useState<ILoan[]>([])
 
     useEffect(() => {
-        async function getBookstore() {
+        async function getLoans() {
             try {
-                const resp = await bookstoreGetAll()
-                setBookStoreData(resp.data);
+                const resp = await loanGetAll()
+                setLoanData(resp.data);
             } catch(e) {
                 console.log(e)
             }
         }
-        getBookstore()
+        getLoans()
     }, [])
 
     const table = useReactTable({
-        data: bookstoreData,
+        data: loanData,
         columns,
         filterFns: {
             fuzzy: fuzzyFilter,
@@ -213,4 +213,4 @@ const BookstoreList = () => {
     )
 }
 
-export default BookstoreList
+export default LoanList

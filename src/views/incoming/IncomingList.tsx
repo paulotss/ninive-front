@@ -15,7 +15,10 @@ import {
 import { rankItem } from '@tanstack/match-sorter-utils'
 import type { ColumnDef, FilterFn, ColumnFiltersState } from '@tanstack/react-table'
 import type { InputHTMLAttributes } from 'react'
-import { bookstoreGetAll, IBookstore } from '@/services/bookstoreService'
+import { IExpense } from '@/services/expenseService'
+import DatePicker from '@/components/ui/DatePicker'
+import dayjs from 'dayjs'
+import { IIncoming, incomingGetAllByDate } from '@/services/incomingService'
 
 interface DebouncedInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'size' | 'prefix'> {
     value: string | number
@@ -74,53 +77,50 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
     return itemRank.passed
 }
 
-const BookstoreList = () => {
+const IncomingList = () => {
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [globalFilter, setGlobalFilter] = useState('')
+    const [period, setPeriod] = useState({ 
+      startDate: dayjs().subtract(30, 'days').toDate(),
+      endDate: new Date()
+    })
 
-    const columns = useMemo<ColumnDef<IBookstore>[]>(
+    const columns = useMemo<ColumnDef<IExpense>[]>(
         () => [
             { header: 'Título', accessorKey: 'book.title',  },
             { header: 'ISBN', accessorKey: 'book.isbn' },
-            { header: 'Loja', accessorKey: 'store.name' },
-            { header: 'Estoque', accessorKey: 'book.amount' },
-            { header: 'Consg.', accessorKey: 'amount'},
+            { header: 'Local', accessorKey: 'branch.name' },
+            { header: 'Quantidade', accessorKey: 'amount' },
+            { header: 'Despesa', accessorKey: 'totalValue'},
             {
-                header: 'Data Consig.',
-                accessorKey: 'consignmentDate',
+                header: 'Data',
+                accessorKey: 'createdAt',
                 cell: props => {
-                    const df = new Date(props.row.original.consignmentDate)
+                    const df = new Date(props.row.original.createdAt)
                     return `${df.getDay()}/${df.getMonth()}/${df.getFullYear()}`
                 }
             },
-            {
-                header: 'Validade',
-                accessorKey: 'returnDate',
-                cell: props => {
-                    const df = new Date(props.row.original.returnDate)
-                    return `${df.getDay()}/${df.getMonth()}/${df.getFullYear()}`
-                }
-            }
         ],
         []
     )
 
-    const [bookstoreData, setBookStoreData] = useState<IBookstore[]>([])
+    const [incomingDate, setIncomingDate] = useState<IIncoming[]>([])
 
     useEffect(() => {
-        async function getBookstore() {
+        async function getIncomings() {
             try {
-                const resp = await bookstoreGetAll()
-                setBookStoreData(resp.data);
+                const { startDate, endDate } = period;
+                const resp = await incomingGetAllByDate(startDate, endDate)
+                setIncomingDate(resp.data);
             } catch(e) {
                 console.log(e)
             }
         }
-        getBookstore()
-    }, [])
+        getIncomings()
+    }, [period])
 
     const table = useReactTable({
-        data: bookstoreData,
+        data: incomingDate,
         columns,
         filterFns: {
             fuzzy: fuzzyFilter,
@@ -145,12 +145,38 @@ const BookstoreList = () => {
 
     return (
         <>
+          <div className='flex justify-between items-center m-5'>
+            <p>
+              Total: <span className='font-bold text-green-600 text-lg'>{
+                incomingDate.reduce((acc, e) => (acc += Number(e.totalValue)), 0)
+                .toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                }</span>
+            </p>
+            <div className='flex justify-start w-64'>
+              <div>
+                <DatePicker
+                  placeholder="Início"
+                  defaultValue={period.startDate}
+                  onChange={(date) => { setPeriod({...period, startDate: date}) }}
+                />
+                <p className='text-[10px] italic'>Início</p>
+              </div>
+              <div>
+                <DatePicker
+                  placeholder="Fim"
+                  defaultValue={period.endDate}
+                  onChange={(date) => { setPeriod({...period, endDate: date}) }}
+                />
+                <p className='text-[10px] italic'>Fim</p>
+              </div>
+            </div>
             <DebouncedInput
                 value={globalFilter ?? ''}
-                className="p-2 font-lg shadow border border-block"
+                className="font-lg shadow border border-block"
                 placeholder="Search all columns..."
                 onChange={(value) => setGlobalFilter(String(value))}
             />
+          </div>
             <Table>
                 <THead>
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -193,7 +219,7 @@ const BookstoreList = () => {
                 <TBody>
                     {table.getRowModel().rows.map((row) => {
                         return (
-                            <Tr key={row.id} /*onClick={() => navigate(`/estoque/${row.original.id}`)}*/>
+                            <Tr key={row.id}>
                                 {row.getVisibleCells().map((cell) => {
                                     return (
                                         <Td key={cell.id}>
@@ -213,4 +239,4 @@ const BookstoreList = () => {
     )
 }
 
-export default BookstoreList
+export default IncomingList

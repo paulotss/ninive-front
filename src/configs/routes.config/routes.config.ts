@@ -14,8 +14,14 @@ export const protectedRoutes = [
     /** Example purpose only, please remove */
     {
         key: 'bookstoreList',
-        path: '/estoque',
+        path: '/consignados',
         component: lazy(() => import('@/views/bookstore/BookstoreList')),
+        authority: [],
+    },
+    {
+        key: 'loanList',
+        path: '/emprestimos',
+        component: lazy(() => import('@/views/loan/LoanList')),
         authority: [],
     },
     {
@@ -25,31 +31,69 @@ export const protectedRoutes = [
         authority: [],
     },
     {
-        key: 'collapseMenu.item2',
-        path: '/collapse-menu-item-view-2',
-        component: lazy(() => import('@/views/demo/CollapseMenuItemView2')),
+        key: 'bookList',
+        path: '/livros',
+        component: lazy(() => import('@/views/book/BookList')),
         authority: [],
     },
     {
-        key: 'groupMenu.single',
-        path: '/group-single-menu-item-view',
-        component: lazy(() => import('@/views/demo/GroupSingleMenuItemView')),
+        key: 'bookView',
+        path: '/livro/:id',
+        component: lazy(() => import('@/views/book/BookView')),
         authority: [],
     },
     {
-        key: 'groupMenu.collapse.item1',
-        path: '/group-collapse-menu-item-view-1',
-        component: lazy(
-            () => import('@/views/demo/GroupCollapseMenuItemView1'),
-        ),
+        key: 'bookNew',
+        path: '/livro/novo',
+        component: lazy(() => import('@/views/book/BookNew')),
         authority: [],
     },
     {
-        key: 'groupMenu.collapse.item2',
-        path: '/group-collapse-menu-item-view-2',
-        component: lazy(
-            () => import('@/views/demo/GroupCollapseMenuItemView2'),
-        ),
+        key: 'expenseList',
+        path: '/despesas',
+        component: lazy(() => import('@/views/expense/ExpenseList')),
+        authority: [],
+    },
+    {
+        key: 'incomingList',
+        path: '/receitas',
+        component: lazy(() => import('@/views/incoming/IncomingList')),
+        authority: [],
+    },
+    {
+        key: 'storeList',
+        path: '/lojas',
+        component: lazy(() => import('@/views/store/StoreList')),
+        authority: [],
+    },
+    {
+        key: 'storeView',
+        path: '/loja/:id',
+        component: lazy(() => import('@/views/store/StoreView')),
+        authority: [],
+    },
+    {
+        key: 'storeNew',
+        path: '/loja/novo',
+        component: lazy(() => import('@/views/store/StoreNew')),
+        authority: [],
+    },
+    {
+        key: 'publisherList',
+        path: '/editoras',
+        component: lazy(() => import('@/views/publisher/PublisherList')),
+        authority: [],
+    },
+    {
+        key: 'publisherView',
+        path: '/editora/:id',
+        component: lazy(() => import('@/views/publisher/PublisherView')),
+        authority: [],
+    },
+    {
+        key: 'publisherNew',
+        path: '/editora/novo',
+        component: lazy(() => import('@/views/publisher/PublisherNew')),
         authority: [],
     },
 ]

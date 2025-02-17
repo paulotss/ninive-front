@@ -15,7 +15,9 @@ import {
 import { rankItem } from '@tanstack/match-sorter-utils'
 import type { ColumnDef, FilterFn, ColumnFiltersState } from '@tanstack/react-table'
 import type { InputHTMLAttributes } from 'react'
-import { bookstoreGetAll, IBookstore } from '@/services/bookstoreService'
+import { IStore, storeGetAll } from '@/services/storeService'
+import Button from '@/components/ui/Button'
+import { useNavigate } from 'react-router-dom'
 
 interface DebouncedInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'size' | 'prefix'> {
     value: string | number
@@ -74,53 +76,41 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
     return itemRank.passed
 }
 
-const BookstoreList = () => {
+const StoreList = () => {
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [globalFilter, setGlobalFilter] = useState('')
+    const navigate = useNavigate();
 
-    const columns = useMemo<ColumnDef<IBookstore>[]>(
+    const columns = useMemo<ColumnDef<IStore>[]>(
         () => [
-            { header: 'Título', accessorKey: 'book.title',  },
-            { header: 'ISBN', accessorKey: 'book.isbn' },
-            { header: 'Loja', accessorKey: 'store.name' },
-            { header: 'Estoque', accessorKey: 'book.amount' },
-            { header: 'Consg.', accessorKey: 'amount'},
+            { header: 'Nome', accessorKey: 'name',  },
             {
-                header: 'Data Consig.',
-                accessorKey: 'consignmentDate',
+                header: 'Livros',
+                accessorKey: 'books',
                 cell: props => {
-                    const df = new Date(props.row.original.consignmentDate)
-                    return `${df.getDay()}/${df.getMonth()}/${df.getFullYear()}`
+                  return props.row.original.books.length
                 }
             },
-            {
-                header: 'Validade',
-                accessorKey: 'returnDate',
-                cell: props => {
-                    const df = new Date(props.row.original.returnDate)
-                    return `${df.getDay()}/${df.getMonth()}/${df.getFullYear()}`
-                }
-            }
         ],
         []
     )
 
-    const [bookstoreData, setBookStoreData] = useState<IBookstore[]>([])
+    const [storeData, setStoreData] = useState<IStore[]>([])
 
     useEffect(() => {
-        async function getBookstore() {
+        async function getStores() {
             try {
-                const resp = await bookstoreGetAll()
-                setBookStoreData(resp.data);
+                const resp = await storeGetAll()
+                setStoreData(resp.data);
             } catch(e) {
                 console.log(e)
             }
         }
-        getBookstore()
+        getStores()
     }, [])
 
     const table = useReactTable({
-        data: bookstoreData,
+        data: storeData,
         columns,
         filterFns: {
             fuzzy: fuzzyFilter,
@@ -145,12 +135,15 @@ const BookstoreList = () => {
 
     return (
         <>
-            <DebouncedInput
-                value={globalFilter ?? ''}
-                className="p-2 font-lg shadow border border-block"
-                placeholder="Search all columns..."
-                onChange={(value) => setGlobalFilter(String(value))}
-            />
+            <div className='flex justify-end'>
+              <DebouncedInput
+                  value={globalFilter ?? ''}
+                  className="p-2 font-lg shadow border border-block"
+                  placeholder="Search all columns..."
+                  onChange={(value) => setGlobalFilter(String(value))}
+              />
+              <Button variant="solid" className='ml-3' onClick={() => navigate('/loja/novo')}>Novo</Button>
+            </div>
             <Table>
                 <THead>
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -213,4 +206,4 @@ const BookstoreList = () => {
     )
 }
 
-export default BookstoreList
+export default StoreList
