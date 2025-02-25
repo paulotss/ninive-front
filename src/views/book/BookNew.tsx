@@ -21,9 +21,6 @@ const validationSchema = Yup.object().shape({
   pages: Yup.string()
     .required('Obrigatório')
     .matches(/^(0|[1-9][0-9]*)$/),
-  amount: Yup.string()
-    .required('Obrigatório')
-    .matches(/^(0|[1-9][0-9]*)$/),
   edition: Yup.string()
     .required('Obrigatório')
     .matches(/^(0|[1-9][0-9]*)$/),
@@ -39,7 +36,6 @@ const BookNew = () => {
       await bookCreate({
         ...values,
         pages: Number(values.pages),
-        amount: Number(values.amount),
         edition: Number(values.edition),
       })
       navigate('/livros')
@@ -71,7 +67,6 @@ const BookNew = () => {
           publishierId: '',
           publicationDate: new Date(),
           pages: '',
-          amount: '',
           edition: '',
         }}
         validationSchema={validationSchema}
@@ -183,19 +178,6 @@ const BookNew = () => {
                   autoComplete="off"
                   name="pages"
                   placeholder="Páginas"
-                  component={Input}
-                />
-              </FormItem>
-              <FormItem
-                label="Quantidade"
-                invalid={errors.amount && touched.amount ? true : false}
-                errorMessage={errors.amount?.toString()}
-              >
-                <Field
-                  type="text"
-                  autoComplete="off"
-                  name="amount"
-                  placeholder="Quantidade"
                   component={Input}
                 />
               </FormItem>

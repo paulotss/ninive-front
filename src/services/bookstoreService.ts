@@ -1,5 +1,6 @@
 import ApiService from './ApiService'
 import { IBook } from './bookService'
+import { ILoan } from './loanService'
 import { IStore } from './storeService'
 
 export interface IBookstore {
@@ -15,6 +16,7 @@ export interface IBookstore {
   closedDate: Date | string
   book?: IBook
   store?: IStore
+  loans?: ILoan[]
 }
 
 export interface IBookstoreCreate {

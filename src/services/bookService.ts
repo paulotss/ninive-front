@@ -2,7 +2,6 @@ import ApiService from './ApiService'
 import { IBookstore } from './bookstoreService'
 import { IExpense } from './expenseService'
 import { IIncoming } from './incomingService'
-import { ILoan } from './loanService'
 import { IPublisher } from './publisherService'
 
 export interface IBook {
@@ -12,12 +11,10 @@ export interface IBook {
   publicationDate: Date | string
   description: string
   pages: number
-  amount: number
   edition: number
   publishierId: number
   publishier?: IPublisher
   stores?: IBookstore[]
-  branchs?: ILoan[]
   expenses?: IExpense[]
   incomings?: IIncoming[]
 }
@@ -28,7 +25,6 @@ export interface IBookCreate {
   publicationDate: Date
   description: string
   pages: number | string
-  amount: number | string
   edition: number | string
   publishierId: number | string
 }
@@ -39,7 +35,6 @@ export interface IBookUpdate {
   publicationDate?: Date
   description?: string
   pages?: number
-  amount?: number
   edition?: number
   publishierId?: number
 }
