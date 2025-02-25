@@ -1,5 +1,10 @@
-import { bookGetOne, IBook } from '@/services/bookService'
-import { Input, Select, Spinner } from '@/components/ui'
+import {
+  bookGetOne,
+  bookUpdate,
+  IBook,
+  IBookCreate,
+} from '@/services/bookService'
+import { DatePicker, Input, Select, Spinner, Button } from '@/components/ui'
 import { FormItem, FormContainer } from '@/components/ui/Form'
 import { Formik, Field, Form, FieldProps } from 'formik'
 import { useEffect, useState } from 'react'
@@ -14,7 +19,8 @@ const validationSchema = Yup.object().shape({
     .max(13, 'ISBN deve conter 13 caracteres')
     .required('Obrigatório'),
   description: Yup.string().required('Obrigatório'),
-  publishier: Yup.string().required('Obrigatório'),
+  publishierId: Yup.string().required('Obrigatório'),
+  publicationDate: Yup.string().required('Obrigatório'),
   pages: Yup.string()
     .required('Obrigatório')
     .matches(/^(0|[1-9][0-9]*)$/),
@@ -30,10 +36,22 @@ const BookView = () => {
   const [book, setBook] = useState<IBook>()
   const [publishers, setPublishers] = useState<IPublisher[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isEditing, setEditing] = useState<boolean>(false)
   const { id } = useParams()
 
-  const handleSubmit = (values) => {
-    console.log(values)
+  const handleSubmit = async (values: IBookCreate) => {
+    try {
+      const { data } = await bookUpdate(Number(id), {
+        ...values,
+        pages: Number(values.pages),
+        amount: Number(values.amount),
+        edition: Number(values.edition),
+        publishierId: Number(values.publishierId),
+      })
+      setBook(data)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   useEffect(() => {
@@ -62,7 +80,8 @@ const BookView = () => {
             title: book?.title,
             isbn: book?.isbn,
             description: book?.description,
-            publishier: book?.publishierId,
+            publishierId: book?.publishierId,
+            publicationDate: new Date(book?.publicationDate),
             pages: book?.pages,
             amount: book?.amount,
             edition: book?.edition,
@@ -84,6 +103,7 @@ const BookView = () => {
                     name="title"
                     placeholder="Título"
                     component={Input}
+                    disabled={!isEditing}
                   />
                 </FormItem>
                 <FormItem
@@ -97,6 +117,7 @@ const BookView = () => {
                     name="isbn"
                     placeholder="ISBN"
                     component={Input}
+                    disabled={!isEditing}
                   />
                 </FormItem>
                 <FormItem
@@ -112,26 +133,28 @@ const BookView = () => {
                     placeholder="Descrição"
                     component={Input}
                     textArea={true}
+                    disabled={!isEditing}
                   />
                 </FormItem>
                 <FormItem
                   label="Editora"
                   invalid={
-                    errors.publishier && touched.publishier ? true : false
+                    errors.publishierId && touched.publishierId ? true : false
                   }
-                  errorMessage={errors.publishier?.toString()}
+                  errorMessage={errors.publishierId?.toString()}
                 >
-                  <Field name="publishier">
-                    {({ field, form }: FieldProps) => (
+                  <Field name="publishierId">
+                    {({ field, form }: FieldProps<IBookCreate>) => (
                       <Select
                         field={field}
+                        isDisabled={!isEditing}
                         form={form}
                         options={publishers.map((p) => ({
                           value: p.id,
                           label: p.name,
                         }))}
                         value={publishers
-                          .filter((option) => option.id === values.publishier)
+                          .filter((option) => option.id === values.publishierId)
                           .map((p) => ({
                             value: p.id,
                             label: p.name,
@@ -139,6 +162,32 @@ const BookView = () => {
                         onChange={(option) =>
                           form.setFieldValue(field.name, option?.value)
                         }
+                      />
+                    )}
+                  </Field>
+                </FormItem>
+                <FormItem
+                  label="Data de publicação"
+                  invalid={
+                    errors.publicationDate && touched.publicationDate
+                      ? true
+                      : false
+                  }
+                  errorMessage={String(errors.publicationDate)}
+                >
+                  <Field
+                    name="publicationDate"
+                    placeholder="Data de publicação"
+                  >
+                    {({ field, form }: FieldProps<IBookCreate>) => (
+                      <DatePicker
+                        field={field}
+                        disabled={!isEditing}
+                        form={form}
+                        value={values.publicationDate}
+                        onChange={(date) => {
+                          form.setFieldValue(field.name, date)
+                        }}
                       />
                     )}
                   </Field>
@@ -154,6 +203,7 @@ const BookView = () => {
                     name="pages"
                     placeholder="Páginas"
                     component={Input}
+                    disabled={!isEditing}
                   />
                 </FormItem>
                 <FormItem
@@ -167,6 +217,7 @@ const BookView = () => {
                     name="amount"
                     placeholder="Quantidade"
                     component={Input}
+                    disabled={!isEditing}
                   />
                 </FormItem>
                 <FormItem
@@ -180,7 +231,13 @@ const BookView = () => {
                     name="edition"
                     placeholder="Edição"
                     component={Input}
+                    disabled={!isEditing}
                   />
+                </FormItem>
+                <FormItem>
+                  <Button type="submit" variant="solid" className="w-48">
+                    Salvar
+                  </Button>
                 </FormItem>
               </FormContainer>
             </Form>

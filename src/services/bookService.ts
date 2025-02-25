@@ -27,10 +27,10 @@ export interface IBookCreate {
   isbn: string
   publicationDate: Date
   description: string
-  pages: number
-  amount: number
-  edition: number
-  publishierId: number
+  pages: number | string
+  amount: number | string
+  edition: number | string
+  publishierId: number | string
 }
 
 export interface IBookUpdate {
@@ -66,10 +66,7 @@ export async function bookGetOne(id: number) {
   })
 }
 
-export async function bookUpdate<IBook, IBookUpdate>(
-  id: number,
-  data: IBookUpdate,
-) {
+export async function bookUpdate(id: number, data: IBookUpdate) {
   return ApiService.fetchData<IBook, IBookUpdate>({
     url: `/book/${id}`,
     method: 'patch',

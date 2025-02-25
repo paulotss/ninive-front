@@ -1,40 +1,57 @@
-import { Button } from '@/components/ui';
+import { Button, FormContainer, FormItem } from '@/components/ui'
 import Input from '@/components/ui/Input'
-import { ChangeEvent, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import DatePicker from '@/components/ui/DatePicker'
 import Select from '@/components/ui/Select'
-import { IPublisher, publisherGetAll } from '@/services/publisherService';
-import { IBookCreate, bookCreate } from '@/services/bookService';
+import { IPublisher, publisherGetAll } from '@/services/publisherService'
+import { IBookCreate, bookCreate } from '@/services/bookService'
+import * as Yup from 'yup'
+import { Form, Formik, Field, FieldProps } from 'formik'
+
+const validationSchema = Yup.object().shape({
+  title: Yup.string().required('Obrigatório'),
+  isbn: Yup.string()
+    .min(13, 'ISBN deve conter 13 caracteres')
+    .max(13, 'ISBN deve conter 13 caracteres')
+    .required('Obrigatório'),
+  description: Yup.string().required('Obrigatório'),
+  publishierId: Yup.string().required('Obrigatório'),
+  publicationDate: Yup.string().required('Obrigatório'),
+  pages: Yup.string()
+    .required('Obrigatório')
+    .matches(/^(0|[1-9][0-9]*)$/),
+  amount: Yup.string()
+    .required('Obrigatório')
+    .matches(/^(0|[1-9][0-9]*)$/),
+  edition: Yup.string()
+    .required('Obrigatório')
+    .matches(/^(0|[1-9][0-9]*)$/),
+})
 
 const BookNew = () => {
-  const [book, setBook] = useState<IBookCreate | null>(null)
   const [publishers, setPublishers] = useState<IPublisher[]>([])
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    const { target } = e;
-    setBook({...book, [target.name]: target.value})
-  }
-  
-  async function handleSubmit() {
+  async function handleSubmit(values: IBookCreate) {
+    console.log(values)
     try {
       await bookCreate({
-        ...book,
-        pages: Number(book.pages),
-        amount: Number(book.amount),
-        edition: Number(book.edition)
-      });
+        ...values,
+        pages: Number(values.pages),
+        amount: Number(values.amount),
+        edition: Number(values.edition),
+      })
       navigate('/livros')
     } catch (e) {
-      console.log(e);
+      console.log(e)
     }
   }
 
   useEffect(() => {
     async function getPublishers() {
       try {
-        const resp = await publisherGetAll();
+        const resp = await publisherGetAll()
         setPublishers(resp.data)
       } catch (e) {
         console.log(e)
@@ -45,26 +62,167 @@ const BookNew = () => {
 
   return (
     <>
-      <h3 className='mb-5'>Novo Livro</h3>
-      <Input placeholder="Nome" name='title' className='mb-5' onChange={handleChange} />
-      <Input placeholder="ISBN" name='isbn' className='mb-5' onChange={handleChange} />
-      <DatePicker placeholder="Data de publicação" className='mb-5' onChange={(date) => setBook({...book, publicationDate: date})} />
-      <Input textArea placeholder="Descrição" name='description' className='mb-5' onChange={handleChange} />
-      <Input type='number' placeholder="Páginas" name='pages' className='mb-5' onChange={handleChange} />
-      <Input placeholder="Quantidade" name='amount' className='mb-5' onChange={handleChange} />
-      <Input type='number' placeholder="Edição" name='edition' className='mb-5' onChange={handleChange} />
-      <Select
-        placeholder="Editora"
-        options={publishers.map((p) => ({
-          value: p.id,
-          label: p.name
-        }))}
-        className='mb-5'
-        onChange={(data) => {setBook({...book, publishierId: data.value})}}
-      ></Select>
-      <Button variant='solid' className='w-48' onClick={handleSubmit}>Cadastrar</Button>
+      <h3 className="mb-5">Novo Livro</h3>
+      <Formik
+        initialValues={{
+          title: '',
+          isbn: '',
+          description: '',
+          publishierId: '',
+          publicationDate: new Date(),
+          pages: '',
+          amount: '',
+          edition: '',
+        }}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ values, touched, errors }) => (
+          <Form>
+            <FormContainer>
+              <FormItem
+                label="Título"
+                invalid={touched.title && errors.title ? true : false}
+                errorMessage={errors.title?.toString()}
+              >
+                <Field
+                  type="text"
+                  autoComplete="off"
+                  name="title"
+                  placeholder="Título"
+                  component={Input}
+                />
+              </FormItem>
+              <FormItem
+                label="ISBN"
+                invalid={errors.isbn && touched.isbn ? true : false}
+                errorMessage={errors.isbn?.toString()}
+              >
+                <Field
+                  type="text"
+                  autoComplete="off"
+                  name="isbn"
+                  placeholder="ISBN"
+                  component={Input}
+                />
+              </FormItem>
+              <FormItem
+                label="Descrição"
+                invalid={
+                  errors.description && touched.description ? true : false
+                }
+                errorMessage={errors.description?.toString()}
+              >
+                <Field
+                  autoComplete="off"
+                  name="description"
+                  placeholder="Descrição"
+                  component={Input}
+                  textArea={true}
+                />
+              </FormItem>
+              <FormItem
+                label="Editora"
+                invalid={
+                  errors.publishierId && touched.publishierId ? true : false
+                }
+                errorMessage={errors.publishierId}
+              >
+                <Field name="publishierId">
+                  {({ field, form }: FieldProps) => (
+                    <Select
+                      field={field}
+                      form={form}
+                      placeholder="Selecione"
+                      options={publishers.map((p) => ({
+                        value: p.id,
+                        label: p.name,
+                      }))}
+                      value={publishers
+                        .filter((option) => option.id === values.publishierId)
+                        .map((p) => ({
+                          value: p.id,
+                          label: p.name,
+                        }))}
+                      onChange={(option) =>
+                        form.setFieldValue(field.name, option?.value)
+                      }
+                    />
+                  )}
+                </Field>
+              </FormItem>
+              <FormItem
+                label="Data de publicação"
+                invalid={
+                  errors.publicationDate && touched.publicationDate
+                    ? true
+                    : false
+                }
+                errorMessage={String(errors.publicationDate)}
+              >
+                <Field name="publicationDate" placeholder="Data de publicação">
+                  {({ field, form }: FieldProps<IBookCreate>) => (
+                    <DatePicker
+                      field={field}
+                      form={form}
+                      value={values.publicationDate}
+                      onChange={(date) => {
+                        form.setFieldValue(field.name, date)
+                      }}
+                    />
+                  )}
+                </Field>
+              </FormItem>
+              <FormItem
+                label="Páginas"
+                invalid={errors.pages && touched.pages ? true : false}
+                errorMessage={errors.pages?.toString()}
+              >
+                <Field
+                  type="text"
+                  autoComplete="off"
+                  name="pages"
+                  placeholder="Páginas"
+                  component={Input}
+                />
+              </FormItem>
+              <FormItem
+                label="Quantidade"
+                invalid={errors.amount && touched.amount ? true : false}
+                errorMessage={errors.amount?.toString()}
+              >
+                <Field
+                  type="text"
+                  autoComplete="off"
+                  name="amount"
+                  placeholder="Quantidade"
+                  component={Input}
+                />
+              </FormItem>
+              <FormItem
+                label="Edição"
+                invalid={errors.edition && touched.edition ? true : false}
+                errorMessage={errors.edition?.toString()}
+              >
+                <Field
+                  type="text"
+                  autoComplete="off"
+                  name="edition"
+                  placeholder="Edição"
+                  component={Input}
+                />
+              </FormItem>
+              <FormItem>
+                <Button type="submit" variant="solid" className="w-48">
+                  Cadastrar
+                </Button>
+              </FormItem>
+            </FormContainer>
+          </Form>
+        )}
+      </Formik>
     </>
   )
 }
 
-export default BookNew;
+export default BookNew
