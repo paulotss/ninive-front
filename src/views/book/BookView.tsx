@@ -48,6 +48,7 @@ const BookView = () => {
   const { id } = useParams()
 
   const handleSubmit = async (values: IBookCreate) => {
+    setIsLoading(true)
     try {
       const { data } = await bookUpdate(Number(id), {
         ...values,
@@ -60,6 +61,7 @@ const BookView = () => {
     } catch (e) {
       console.log(e)
     }
+    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -235,10 +237,11 @@ const BookView = () => {
                       </Button>
                     ) : (
                       <Button
-                        type="submit"
+                        type="button"
                         variant="twoTone"
                         className="w-48"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.preventDefault()
                           setEditing(true)
                         }}
                       >
@@ -280,12 +283,10 @@ const BookView = () => {
               </TabNav>
             </TabList>
             <TabContent value="tab1">
-              <TableCompactLoan
-                loans={book?.stores?.flatMap((s) => s.loans) || []}
-              />
+              <TableCompactLoan loans={book?.stores.flatMap((s) => s.loans)} />
             </TabContent>
             <TabContent value="tab2">
-              <TableCompactBookstore bookstores={book?.stores || []} />
+              <TableCompactBookstore bookstores={book?.stores} />
             </TabContent>
           </Tabs>
         </>

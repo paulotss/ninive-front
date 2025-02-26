@@ -13,6 +13,7 @@ const TableCompactLoan = ({ loans }: IProps) => {
     <Table compact>
       <THead>
         <Tr>
+          <Th>Local</Th>
           <Th>Quantidade</Th>
           <Th>Preço de capa</Th>
           <Th>Ações</Th>

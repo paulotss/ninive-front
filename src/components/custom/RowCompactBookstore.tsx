@@ -10,8 +10,7 @@ interface IProps {
 const RowCompactBookstore = ({ bookstore }: IProps) => {
   return (
     <Tr>
-      <Td>{bookstore.book.title}</Td>
-      <Td>{bookstore.book.isbn}</Td>
+      <Td>{bookstore.store.name}</Td>
       <Td>{bookstore.amount}</Td>
       <Td>{bookstore.coverPrice}</Td>
       <Td></Td>

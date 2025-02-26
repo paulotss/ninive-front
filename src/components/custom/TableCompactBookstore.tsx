@@ -13,6 +13,7 @@ const TableCompactBookstore = ({ bookstores }: IProps) => {
     <Table compact>
       <THead>
         <Tr>
+          <Th>Loja</Th>
           <Th>Quantidade</Th>
           <Th>Preço de capa</Th>
           <Th>Ações</Th>

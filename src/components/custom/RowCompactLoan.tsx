@@ -10,8 +10,7 @@ const { Tr, Td } = Table
 const RowCompactLoan = ({ loan }: IProps) => {
   return (
     <Tr>
-      <Td>{loan.bookstore.book.title}</Td>
-      <Td>{loan.bookstore.book.isbn}</Td>
+      <Td>{loan.branch.name}</Td>
       <Td>{loan.amount}</Td>
       <Td>{loan.bookstore.coverPrice}</Td>
       <Td></Td>
