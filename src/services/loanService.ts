@@ -18,10 +18,10 @@ export interface ILoan {
 
 export interface ILoanCreate {
   bookstoreId: number
-  branchId: number
-  amount: number
+  branchId: number | string
+  amount: number | string
   returnDate: Date
-  profitMargin: number
+  profitMargin: number | string
 }
 
 export interface ILoanUpdate {

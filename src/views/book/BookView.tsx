@@ -21,6 +21,7 @@ import {
 } from '@/utils/amount'
 import TableCompactLoan from '@/components/custom/TableCompactLoan'
 import NewBookstore from '@/components/custom/NewBookstore'
+import { bookstoreCreate, IBookstoreCreate } from '@/services/bookstoreService'
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('Obrigatório'),
@@ -63,6 +64,20 @@ const BookView = () => {
       console.log(e)
     }
     setIsLoading(false)
+  }
+
+  async function handleSubmitBookstore(values: IBookstoreCreate) {
+    try {
+      await bookstoreCreate({
+        ...values,
+        storeId: Number(values.storeId),
+        amount: Number(values.amount),
+      })
+      const { data } = await bookGetOne(Number(id))
+      setBook(data)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   useEffect(() => {
@@ -276,7 +291,10 @@ const BookView = () => {
               </p>
             </div>
             <div className="p-3">
-              <NewBookstore bookId={Number(id)} setBook={setBook} />
+              <NewBookstore
+                bookId={Number(id)}
+                handleSubmitBookstore={handleSubmitBookstore}
+              />
             </div>
           </div>
           <Tabs defaultValue="tab1">

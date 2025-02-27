@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from 'react'
+import { useState } from 'react'
 import {
   Button,
   DatePicker,
@@ -13,12 +13,11 @@ import { Field, Form, Formik, FieldProps } from 'formik'
 import * as Yup from 'yup'
 import { IStore, storeGetAll } from '@/services/storeService'
 import { BsFileArrowDownFill } from 'react-icons/bs'
-import { IBookstoreCreate, bookstoreCreate } from '@/services/bookstoreService'
-import { IBook } from '@/services/bookService'
+import { IBookstoreCreate } from '@/services/bookstoreService'
 
 interface IProps {
   bookId: number
-  setBook: Dispatch<SetStateAction<IBook>>
+  handleSubmitBookstore(values: IBookstoreCreate): void
 }
 
 const validationSchema = Yup.object().shape({
@@ -32,7 +31,7 @@ const validationSchema = Yup.object().shape({
     .matches(/^(0|[1-9][0-9]*)$/, 'Somente números'),
 })
 
-const NewBookstore = ({ bookId, setBook }: IProps) => {
+const NewBookstore = ({ bookId, handleSubmitBookstore }: IProps) => {
   const [dialogIsOpen, setDialogIsOpen] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [stores, setStores] = useState<IStore[]>([])
@@ -49,20 +48,9 @@ const NewBookstore = ({ bookId, setBook }: IProps) => {
     setIsLoading(false)
   }
 
-  async function handleSubmit(values: IBookstoreCreate) {
-    setIsLoading(true)
-    try {
-      const { data } = await bookstoreCreate({
-        ...values,
-        storeId: Number(values.storeId),
-        amount: Number(values.amount),
-      })
-      setBook(data.book)
-      setDialogIsOpen(false)
-    } catch (e) {
-      console.log(e)
-    }
-    setIsLoading(true)
+  async function handleDialogOk(values: IBookstoreCreate) {
+    handleSubmitBookstore(values)
+    setDialogIsOpen(false)
   }
 
   return (
@@ -98,7 +86,7 @@ const NewBookstore = ({ bookId, setBook }: IProps) => {
               amount: '',
             }}
             validationSchema={validationSchema}
-            onSubmit={handleSubmit}
+            onSubmit={handleDialogOk}
           >
             {({ values, touched, errors }) => (
               <Form>

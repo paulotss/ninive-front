@@ -1,19 +1,28 @@
 import { IBookstore } from '@/services/bookstoreService'
 import { Table } from '../ui'
+import { ILoanCreate } from '@/services/loanService'
+import NewLoan from './NewLoan'
 
 const { Tr, Td } = Table
 
 interface IProps {
   bookstore: IBookstore
+  handleSubmitLoan(values: ILoanCreate): void
 }
 
-const RowCompactBookstore = ({ bookstore }: IProps) => {
+const RowCompactBookstore = ({ bookstore, handleSubmitLoan }: IProps) => {
   return (
     <Tr>
       <Td>{bookstore.store.name}</Td>
       <Td>{bookstore.amount}</Td>
       <Td>{bookstore.coverPrice}</Td>
-      <Td></Td>
+      <Td>
+        <NewLoan
+          bookstoreId={bookstore.id}
+          maxAmount={bookstore.amount}
+          handleSubmitLoan={handleSubmitLoan}
+        />
+      </Td>
     </Tr>
   )
 }
