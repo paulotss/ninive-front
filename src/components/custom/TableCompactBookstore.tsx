@@ -1,14 +1,17 @@
 import { Table } from '../ui'
 import { IBookstore } from '@/services/bookstoreService'
 import RowCompactBookstore from './RowCompactBookstore'
+import { ILoanCreate } from '@/services/loanService'
+import { getTotalAmount } from '@/utils/amount'
 
 const { Tr, Th, THead, TBody } = Table
 
 interface IProps {
   bookstores: IBookstore[]
+  handleSubmitLoan(values: ILoanCreate): void
 }
 
-const TableCompactBookstore = ({ bookstores }: IProps) => {
+const TableCompactBookstore = ({ bookstores, handleSubmitLoan }: IProps) => {
   return (
     <Table compact>
       <THead>
@@ -21,7 +24,12 @@ const TableCompactBookstore = ({ bookstores }: IProps) => {
       </THead>
       <TBody>
         {bookstores?.map((b) => (
-          <RowCompactBookstore key={b.id} bookstore={b} />
+          <RowCompactBookstore
+            key={b.id}
+            handleSubmitLoan={handleSubmitLoan}
+            bookstore={b}
+            maxAmount={getTotalAmount(bookstores)}
+          />
         ))}
       </TBody>
     </Table>

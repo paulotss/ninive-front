@@ -21,14 +21,6 @@ interface IProps {
   handleSubmitLoan(values: ILoanCreate): void
 }
 
-const validationSchema = Yup.object().shape({
-  branchId: Yup.string().required('Obrigatório'),
-  profitMargin: Yup.string()
-    .required('Obrigatório')
-    .matches(/^(0|[1-9][0-9]*)$/, 'Somente números'),
-  returnDate: Yup.date().required('Obrigatório'),
-})
-
 const NewLoan = ({ bookstoreId, maxAmount, handleSubmitLoan }: IProps) => {
   const [dialogIsOpen, setDialogIsOpen] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -80,13 +72,17 @@ const NewLoan = ({ bookstoreId, maxAmount, handleSubmitLoan }: IProps) => {
               returnDate: new Date(),
               amount: '',
             }}
-            validationSchema={{
-              ...validationSchema,
+            validationSchema={Yup.object().shape({
+              branchId: Yup.string().required('Obrigatório'),
+              profitMargin: Yup.string()
+                .required('Obrigatório')
+                .matches(/^(0|[1-9][0-9]*)$/, 'Somente números'),
+              returnDate: Yup.date().required('Obrigatório'),
               amount: Yup.number()
                 .max(maxAmount)
                 .min(1)
                 .required('Obrigatório'),
-            }}
+            })}
             onSubmit={handleDialogOk}
           >
             {({ values, touched, errors }) => (

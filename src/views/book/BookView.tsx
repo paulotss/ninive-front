@@ -22,6 +22,7 @@ import {
 import TableCompactLoan from '@/components/custom/TableCompactLoan'
 import NewBookstore from '@/components/custom/NewBookstore'
 import { bookstoreCreate, IBookstoreCreate } from '@/services/bookstoreService'
+import { ILoanCreate, loanCreate } from '@/services/loanService'
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('Obrigatório'),
@@ -71,6 +72,21 @@ const BookView = () => {
       await bookstoreCreate({
         ...values,
         storeId: Number(values.storeId),
+        amount: Number(values.amount),
+      })
+      const { data } = await bookGetOne(Number(id))
+      setBook(data)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  async function handleSubmitLoan(values: ILoanCreate) {
+    try {
+      await loanCreate({
+        ...values,
+        profitMargin: Number(values.profitMargin),
+        branchId: Number(values.branchId),
         amount: Number(values.amount),
       })
       const { data } = await bookGetOne(Number(id))
@@ -310,7 +326,10 @@ const BookView = () => {
               <TableCompactLoan loans={book?.stores.flatMap((s) => s.loans)} />
             </TabContent>
             <TabContent value="tab2">
-              <TableCompactBookstore bookstores={book?.stores} />
+              <TableCompactBookstore
+                bookstores={book?.stores}
+                handleSubmitLoan={handleSubmitLoan}
+              />
             </TabContent>
           </Tabs>
         </>

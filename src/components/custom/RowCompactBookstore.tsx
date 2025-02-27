@@ -7,10 +7,15 @@ const { Tr, Td } = Table
 
 interface IProps {
   bookstore: IBookstore
+  maxAmount: number
   handleSubmitLoan(values: ILoanCreate): void
 }
 
-const RowCompactBookstore = ({ bookstore, handleSubmitLoan }: IProps) => {
+const RowCompactBookstore = ({
+  bookstore,
+  maxAmount,
+  handleSubmitLoan,
+}: IProps) => {
   return (
     <Tr>
       <Td>{bookstore.store.name}</Td>
@@ -19,7 +24,7 @@ const RowCompactBookstore = ({ bookstore, handleSubmitLoan }: IProps) => {
       <Td>
         <NewLoan
           bookstoreId={bookstore.id}
-          maxAmount={bookstore.amount}
+          maxAmount={maxAmount}
           handleSubmitLoan={handleSubmitLoan}
         />
       </Td>
