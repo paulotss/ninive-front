@@ -20,10 +20,10 @@ const validationSchema = Yup.object().shape({
   publicationDate: Yup.string().required('Obrigatório'),
   pages: Yup.string()
     .required('Obrigatório')
-    .matches(/^(0|[1-9][0-9]*)$/),
+    .matches(/^(0|[1-9][0-9]*)$/, 'Somente números'),
   edition: Yup.string()
     .required('Obrigatório')
-    .matches(/^(0|[1-9][0-9]*)$/),
+    .matches(/^(0|[1-9][0-9]*)$/, 'Somente números'),
 })
 
 const BookNew = () => {

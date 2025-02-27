@@ -20,6 +20,7 @@ import {
   getTotalAmount,
 } from '@/utils/amount'
 import TableCompactLoan from '@/components/custom/TableCompactLoan'
+import NewBookstore from '@/components/custom/NewBookstore'
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('Obrigatório'),
@@ -253,25 +254,30 @@ const BookView = () => {
               </Form>
             )}
           </Formik>
-          <div className="p-2 mb-5 border-2 border-dotted rounded-md">
-            <p>
-              Estoque:{' '}
-              <span className="font-bold">
-                {book && getTotalAmount(book.stores)}
-              </span>
-            </p>
-            <p>
-              Consignados:{' '}
-              <span className="font-bold text-green-500">
-                {book && getBookstoreAmount(book.stores)}
-              </span>
-            </p>
-            <p>
-              Consignados NA:{' '}
-              <span className="font-bold text-red-500">
-                {book && getLoanAmount(book.stores)}
-              </span>
-            </p>
+          <div className="flex">
+            <div className="p-2 mb-5 border-2 border-dotted rounded-md">
+              <p>
+                Estoque:{' '}
+                <span className="font-bold">
+                  {book && getTotalAmount(book.stores)}
+                </span>
+              </p>
+              <p>
+                Consignados:{' '}
+                <span className="font-bold text-green-500">
+                  {book && getBookstoreAmount(book.stores)}
+                </span>
+              </p>
+              <p>
+                Consignados NA:{' '}
+                <span className="font-bold text-red-500">
+                  {book && getLoanAmount(book.stores)}
+                </span>
+              </p>
+            </div>
+            <div className="p-3">
+              <NewBookstore bookId={Number(id)} setBook={setBook} />
+            </div>
           </div>
           <Tabs defaultValue="tab1">
             <TabList>

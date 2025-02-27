@@ -21,27 +21,25 @@ export interface IBookstore {
 
 export interface IBookstoreCreate {
   bookId: number
-  storeId: number
-  coverPrice: number
-  tax: number
+  storeId: number | string
+  coverPrice: number | string
+  tax: number | string
   returnDate: Date
-  amount: number
+  amount: number | string
 }
 
 export interface IBookstoreUpdate {
   bookId?: number
   storeId?: number
   coverPrice?: number
-  tax: number
+  tax?: number
   returnDate?: Date
   amount?: number
   closed?: boolean
   closedDate?: Date
 }
 
-export async function bookstoreCreate<IBookstore, IBookstoreCreate>(
-  data: IBookstoreCreate,
-) {
+export async function bookstoreCreate(data: IBookstoreCreate) {
   return ApiService.fetchData<IBookstore, IBookstoreCreate>({
     url: '/book-store',
     method: 'post',
