@@ -51,6 +51,7 @@ const NewLoan = ({ bookstoreId, maxAmount, handleSubmitLoan }: IProps) => {
         icon={<BsFileArrowUpFill />}
         color="red-500"
         variant="solid"
+        disabled={!(maxAmount > 0)}
         onClick={handleOpenDialog}
       />
 
@@ -71,6 +72,7 @@ const NewLoan = ({ bookstoreId, maxAmount, handleSubmitLoan }: IProps) => {
               profitMargin: '',
               returnDate: new Date(),
               amount: '',
+              salesAmount: 0,
             }}
             validationSchema={Yup.object().shape({
               branchId: Yup.string().required('Obrigatório'),

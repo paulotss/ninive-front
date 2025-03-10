@@ -21,8 +21,14 @@ import {
 } from '@/utils/amount'
 import TableCompactLoan from '@/components/custom/TableCompactLoan'
 import NewBookstore from '@/components/custom/NewBookstore'
-import { bookstoreCreate, IBookstoreCreate } from '@/services/bookstoreService'
-import { ILoanCreate, loanCreate } from '@/services/loanService'
+import {
+  bookstoreCreate,
+  bookstoreUpdate,
+  IBookstoreCreate,
+} from '@/services/bookstoreService'
+import { ILoanCreate, loanCreate, loanUpdate } from '@/services/loanService'
+import { expenseCreate, IExpenseCreate } from '@/services/expenseService'
+import { IIncomingCreate, incomingCreate } from '@/services/incomingService'
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('Obrigatório'),
@@ -88,6 +94,37 @@ const BookView = () => {
         profitMargin: Number(values.profitMargin),
         branchId: Number(values.branchId),
         amount: Number(values.amount),
+      })
+      const { data } = await bookGetOne(Number(id))
+      setBook(data)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  async function handleSubmitExpense(
+    bookstoreId: number,
+    values: IExpenseCreate,
+  ) {
+    try {
+      await expenseCreate(values)
+      await bookstoreUpdate(bookstoreId, {
+        closed: true,
+        closedDate: new Date(),
+      })
+      const { data } = await bookGetOne(Number(id))
+      setBook(data)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  async function handleSubmitIncoming(loanId: number, values: IIncomingCreate) {
+    try {
+      await incomingCreate(values)
+      await loanUpdate(loanId, {
+        closed: true,
+        closedDate: new Date(),
       })
       const { data } = await bookGetOne(Number(id))
       setBook(data)
@@ -323,12 +360,17 @@ const BookView = () => {
               </TabNav>
             </TabList>
             <TabContent value="tab1">
-              <TableCompactLoan loans={book?.stores.flatMap((s) => s.loans)} />
+              <TableCompactLoan
+                loans={book?.stores.flatMap((s) => s.loans)}
+                bookTitle={book?.title}
+                handleSubmitIncoming={handleSubmitIncoming}
+              />
             </TabContent>
             <TabContent value="tab2">
               <TableCompactBookstore
                 bookstores={book?.stores}
                 handleSubmitLoan={handleSubmitLoan}
+                handleSubmitExpense={handleSubmitExpense}
               />
             </TabContent>
           </Tabs>

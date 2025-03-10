@@ -7,6 +7,7 @@ export interface ILoan {
   bookstoreId: number
   branchId: number
   amount: number
+  salesAmount: number
   loanDate: Date
   returnDate: Date | string
   profitMargin: number
@@ -20,6 +21,7 @@ export interface ILoanCreate {
   bookstoreId: number
   branchId: number | string
   amount: number | string
+  salesAmount: number
   returnDate: Date
   profitMargin: number | string
 }
@@ -28,6 +30,7 @@ export interface ILoanUpdate {
   bookstoreId?: number
   branchId?: number
   amount?: number
+  salesAmount?: number
   returnDate?: Date
   profitMargin?: number
   closed?: boolean
