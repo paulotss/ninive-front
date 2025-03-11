@@ -79,6 +79,7 @@ const BookView = () => {
         ...values,
         storeId: Number(values.storeId),
         amount: Number(values.amount),
+        coverPrice: values.coverPrice.toString().replace(',', '.'),
       })
       const { data } = await bookGetOne(Number(id))
       setBook(data)

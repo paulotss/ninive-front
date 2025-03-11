@@ -19,9 +19,9 @@ import type {
   ColumnFiltersState,
 } from '@tanstack/react-table'
 import type { InputHTMLAttributes } from 'react'
-import { IStore, storeGetAll } from '@/services/storeService'
 import Button from '@/components/ui/Button'
 import { useNavigate } from 'react-router-dom'
+import { branchGetAll, IBranch } from '@/services/branchService'
 
 interface DebouncedInputProps
   extends Omit<
@@ -84,12 +84,12 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   return itemRank.passed
 }
 
-const StoreList = () => {
+const BranchList = () => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')
   const navigate = useNavigate()
 
-  const columns = useMemo<ColumnDef<IStore>[]>(
+  const columns = useMemo<ColumnDef<IBranch>[]>(
     () => [
       { header: 'Nome', accessorKey: 'name' },
       {
@@ -103,22 +103,22 @@ const StoreList = () => {
     [],
   )
 
-  const [storeData, setStoreData] = useState<IStore[]>([])
+  const [branchData, setBranchData] = useState<IBranch[]>([])
 
   useEffect(() => {
-    async function getStores() {
+    async function getBranchs() {
       try {
-        const resp = await storeGetAll()
-        setStoreData(resp.data)
+        const resp = await branchGetAll()
+        setBranchData(resp.data)
       } catch (e) {
         console.log(e)
       }
     }
-    getStores()
+    getBranchs()
   }, [])
 
   const table = useReactTable({
-    data: storeData,
+    data: branchData,
     columns,
     filterFns: {
       fuzzy: fuzzyFilter,
@@ -143,7 +143,7 @@ const StoreList = () => {
 
   return (
     <>
-      <h3>Fornecedores</h3>
+      <h3>Pontos de venda</h3>
       <div className="flex justify-end">
         <DebouncedInput
           value={globalFilter ?? ''}
@@ -154,7 +154,7 @@ const StoreList = () => {
         <Button
           variant="solid"
           className="ml-3"
-          onClick={() => navigate('/fornecedor/novo')}
+          onClick={() => navigate('/loja/novo')}
         >
           Novo
         </Button>
@@ -215,4 +215,4 @@ const StoreList = () => {
   )
 }
 
-export default StoreList
+export default BranchList

@@ -72,17 +72,6 @@ const NewExpense = ({
         >
           Confirmar
         </Button>
-        <Button
-          type="button"
-          variant="default"
-          onClick={() => {
-            ;() => {
-              setIsDialogOpen(false)
-            }
-          }}
-        >
-          Cancelar
-        </Button>
       </Dialog>
     </>
   )

@@ -48,6 +48,8 @@ const NewLoan = ({ bookstoreId, maxAmount, handleSubmitLoan }: IProps) => {
       <Button
         type="button"
         size="xs"
+        shape="circle"
+        className="mr-2"
         icon={<BsFileArrowUpFill />}
         color="red-500"
         variant="solid"

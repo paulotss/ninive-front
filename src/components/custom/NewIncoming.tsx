@@ -81,17 +81,6 @@ const NewIncoming = ({
         >
           Confirmar
         </Button>
-        <Button
-          type="button"
-          variant="default"
-          onClick={() => {
-            ;() => {
-              setIsDialogOpen(false)
-            }
-          }}
-        >
-          Cancelar
-        </Button>
       </Dialog>
     </>
   )

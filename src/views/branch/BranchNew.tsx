@@ -1,22 +1,22 @@
 import { Button } from '@/components/ui'
 import Input from '@/components/ui/Input'
-import { IStoreCreate, storeCreate } from '@/services/storeService'
+import { branchCreate, IBranchCreate } from '@/services/branchService'
 import { ChangeEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const StoreNew = () => {
-  const [store, setStore] = useState<IStoreCreate | null>(null)
+const BranchNew = () => {
+  const [branch, setBranch] = useState<IBranchCreate | null>(null)
   const navigate = useNavigate()
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     const { target } = e
-    setStore({ ...store, [target.name]: target.value })
+    setBranch({ ...branch, [target.name]: target.value })
   }
 
   async function handleSubmit() {
     try {
-      await storeCreate(store)
-      navigate('/fornecedores')
+      await branchCreate(branch)
+      navigate('/lojas')
     } catch (e) {
       console.log(e)
     }
@@ -24,7 +24,7 @@ const StoreNew = () => {
 
   return (
     <>
-      <h3 className="mb-5">Novo Fornecedor</h3>
+      <h3 className="mb-5">Novo ponto de venda</h3>
       <Input
         placeholder="Nome"
         name="name"
@@ -38,4 +38,4 @@ const StoreNew = () => {
   )
 }
 
-export default StoreNew
+export default BranchNew

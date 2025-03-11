@@ -27,24 +27,26 @@ const RowCompactBookstore = ({
       <Td>{maxAmount}</Td>
       <Td>{bookstore.coverPrice}</Td>
       <Td>
-        <NewLoan
-          bookstoreId={bookstore.id}
-          maxAmount={bookstore.amount - maxAmount}
-          handleSubmitLoan={handleSubmitLoan}
-        />
-        <NewExpense
-          payload={{
-            bookId: bookstore.bookId,
-            storeId: bookstore.storeId,
-            amount: bookstore.amount,
-            totalValue: Number(bookstore.coverPrice) * maxAmount,
-          }}
-          maxAmount={maxAmount}
-          storeName={bookstore.store.name}
-          bookTitle={bookstore.book.title}
-          bookstoreId={bookstore.id}
-          handleSubmitExpense={handleSubmitExpense}
-        />
+        <div className="flex items-center">
+          <NewLoan
+            bookstoreId={bookstore.id}
+            maxAmount={bookstore.amount - maxAmount}
+            handleSubmitLoan={handleSubmitLoan}
+          />
+          <NewExpense
+            payload={{
+              bookId: bookstore.bookId,
+              storeId: bookstore.storeId,
+              amount: bookstore.amount,
+              totalValue: Number(bookstore.coverPrice) * maxAmount,
+            }}
+            maxAmount={maxAmount}
+            storeName={bookstore.store.name}
+            bookTitle={bookstore.book.title}
+            bookstoreId={bookstore.id}
+            handleSubmitExpense={handleSubmitExpense}
+          />
+        </div>
       </Td>
     </Tr>
   )
