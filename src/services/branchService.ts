@@ -1,11 +1,11 @@
 import ApiService from './ApiService'
-import { IBook } from './bookService'
 import { IIncoming } from './incomingService'
+import { ILoan } from './loanService'
 
 export interface IBranch {
   id: number
   name: string
-  books?: IBook[]
+  books?: ILoan[]
   incomings?: IIncoming[]
 }
 

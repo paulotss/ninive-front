@@ -23,7 +23,7 @@ const TableCompactBookstore = ({
         <Tr>
           <Th>Loja</Th>
           <Th>Quantidade</Th>
-          <Th>Em Vendas</Th>
+          <Th>Vendas</Th>
           <Th>Preço de capa</Th>
           <Th>Ações</Th>
         </Tr>
@@ -34,7 +34,7 @@ const TableCompactBookstore = ({
             key={b.id}
             handleSubmitLoan={handleSubmitLoan}
             bookstore={b}
-            maxAmount={b.loans.reduce((acc, l) => (acc += l.amount), 0)}
+            salesAmount={b.loans.reduce((acc, l) => (acc += l.salesAmount), 0)}
             handleSubmitExpense={handleSubmitExpense}
           />
         ))}

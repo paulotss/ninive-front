@@ -28,7 +28,6 @@ import {
 } from '@/services/bookstoreService'
 import { ILoanCreate, loanCreate, loanUpdate } from '@/services/loanService'
 import { expenseCreate, IExpenseCreate } from '@/services/expenseService'
-import { IIncomingCreate, incomingCreate } from '@/services/incomingService'
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('Obrigatório'),
@@ -120,9 +119,8 @@ const BookView = () => {
     }
   }
 
-  async function handleSubmitIncoming(loanId: number, values: IIncomingCreate) {
+  async function handleSubmitIncoming(loanId: number) {
     try {
-      await incomingCreate(values)
       await loanUpdate(loanId, {
         closed: true,
         closedDate: new Date(),
@@ -132,6 +130,12 @@ const BookView = () => {
     } catch (e) {
       console.log(e)
     }
+  }
+
+  function getLoansFilter(isClosed: boolean) {
+    return book?.stores.flatMap((s) =>
+      s.loans.filter((l) => l.closed === isClosed),
+    )
   }
 
   useEffect(() => {
@@ -338,7 +342,7 @@ const BookView = () => {
                 </span>
               </p>
               <p>
-                Consignados NA:{' '}
+                Em vendas:{' '}
                 <span className="font-bold text-red-500">
                   {book && getLoanAmount(book.stores)}
                 </span>
@@ -354,7 +358,7 @@ const BookView = () => {
           <Tabs defaultValue="tab1">
             <TabList>
               <TabNav value="tab1" icon={<BsFileArrowUpFill />}>
-                Consignados NA
+                Em vendas
               </TabNav>
               <TabNav value="tab2" icon={<BsFileArrowDownFill />}>
                 Consignados
@@ -362,7 +366,7 @@ const BookView = () => {
             </TabList>
             <TabContent value="tab1">
               <TableCompactLoan
-                loans={book?.stores.flatMap((s) => s.loans)}
+                loans={getLoansFilter(false)}
                 bookTitle={book?.title}
                 handleSubmitIncoming={handleSubmitIncoming}
               />

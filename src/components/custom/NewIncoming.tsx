@@ -1,19 +1,16 @@
 import { useState } from 'react'
 import { Button, Dialog } from '../ui'
-import { IIncomingCreate } from '@/services/incomingService'
 
 interface IProps {
-  payload: IIncomingCreate
   branchName: string
   bookTitle: string
   amount: number
   salesAmount: number
   loanId: number
-  handleSubmitIncoming(loanId, values: IIncomingCreate): void
+  handleSubmitIncoming(loanId: number): void
 }
 
 const NewIncoming = ({
-  payload,
   branchName,
   bookTitle,
   amount,
@@ -24,7 +21,7 @@ const NewIncoming = ({
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
 
   async function handleSubmit() {
-    handleSubmitIncoming(loanId, payload)
+    handleSubmitIncoming(loanId)
     setIsDialogOpen(false)
   }
 
@@ -51,25 +48,14 @@ const NewIncoming = ({
             Loja: <span className="font-bold">{branchName}</span>
           </p>
           <p>
-            Quantidade: <span className="font-bold">{amount}</span>{' '}
-            <span className="italic">de ({payload.amount})</span>
+            Quantidade: <span className="font-bold">{amount}</span>
           </p>
           <p>
-            Vendas: <span className="font-bold">{salesAmount}</span>{' '}
-            <span className="italic">de ({payload.amount})</span>
+            Vendas: <span className="font-bold">{salesAmount}</span>
           </p>
           <p>
             Quantidade Total:{' '}
-            <span className="font-bold">{amount - salesAmount}</span>{' '}
-          </p>
-          <p>
-            Valor:{' '}
-            <span className="font-bold">
-              {payload.totalValue.toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-              })}
-            </span>
+            <span className="font-bold">{amount - salesAmount}</span>
           </p>
         </div>
         <Button

@@ -1,12 +1,11 @@
 import { Table } from '../ui'
 import { ILoan } from '@/services/loanService'
 import NewIncoming from './NewIncoming'
-import { IIncomingCreate } from '@/services/incomingService'
 
 interface IProps {
   loan: ILoan
   bookTitle: string
-  handleSubmitIncoming(loanId: number, values: IIncomingCreate): void
+  handleSubmitIncoming(loanId: number): void
 }
 
 const { Tr, Td } = Table
@@ -21,12 +20,6 @@ const RowCompactLoan = ({ loan, bookTitle, handleSubmitIncoming }: IProps) => {
       <Td>{loan.bookstore.coverPrice}</Td>
       <Td>
         <NewIncoming
-          payload={{
-            bookId: loan.bookstore.bookId,
-            branchId: loan.branchId,
-            amount: loan.salesAmount,
-            totalValue: loan.amount * Number(loan.bookstore.coverPrice),
-          }}
           bookTitle={bookTitle}
           branchName={loan.branch.name}
           amount={loan.amount}

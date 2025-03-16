@@ -6,7 +6,11 @@ export function getBookstoreAmount(stores: IBookstore[]): number {
 
 export function getLoanAmount(stores: IBookstore[]): number {
   return stores.reduce(
-    (accs, s) => (accs += s.loans.reduce((accl, l) => (accl += l.amount), 0)),
+    (accs, s) =>
+      (accs += s.loans.reduce(
+        (accl, l) => (accl += !l.closed ? l.amount : 0),
+        0,
+      )),
     0,
   )
 }

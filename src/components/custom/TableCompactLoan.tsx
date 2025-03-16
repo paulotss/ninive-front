@@ -1,14 +1,13 @@
 import { Table } from '../ui'
 import { ILoan } from '@/services/loanService'
 import RowCompactLoan from './RowCompactLoan'
-import { IIncomingCreate } from '@/services/incomingService'
 
 const { Tr, Th, THead, TBody } = Table
 
 interface IProps {
   loans: ILoan[]
   bookTitle: string
-  handleSubmitIncoming(loanId: number, values: IIncomingCreate): void
+  handleSubmitIncoming(loanId: number): void
 }
 
 const TableCompactLoan = ({

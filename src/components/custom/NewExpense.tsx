@@ -6,8 +6,9 @@ interface IProps {
   payload: IExpenseCreate
   storeName: string
   bookTitle: string
-  maxAmount: number
+  salesAmount: number
   bookstoreId: number
+  isLoan: boolean
   handleSubmitExpense(bookstoreId, values: IExpenseCreate): void
 }
 
@@ -15,8 +16,9 @@ const NewExpense = ({
   payload,
   storeName,
   bookTitle,
-  maxAmount,
+  salesAmount,
   bookstoreId,
+  isLoan,
   handleSubmitExpense,
 }: IProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
@@ -30,13 +32,13 @@ const NewExpense = ({
     <>
       <Button
         type="button"
+        disabled={isLoan}
         size="xs"
-        disabled={maxAmount > 0}
         onClick={() => {
           setIsDialogOpen(true)
         }}
       >
-        Devolver
+        Faturar
       </Button>
       <Dialog
         isOpen={isDialogOpen}
@@ -50,7 +52,8 @@ const NewExpense = ({
             Editora: <span className="font-bold">{storeName}</span>
           </p>
           <p>
-            Quantidade: <span className="font-bold">{maxAmount}</span>{' '}
+            Quantidade:{' '}
+            <span className="font-bold">{payload.amount - salesAmount}</span>{' '}
             <span className="italic">de ({payload.amount})</span>
           </p>
           <p>
