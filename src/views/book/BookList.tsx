@@ -60,7 +60,7 @@ function DebouncedInput({
   return (
     <div className="flex justify-end">
       <div className="flex items-center mb-4">
-        <span className="mr-2">Search:</span>
+        <span className="mr-2">Pesquisar:</span>
         <Input
           {...props}
           value={value}
@@ -152,7 +152,7 @@ const BookList = () => {
         <DebouncedInput
           value={globalFilter ?? ''}
           className="p-2 font-lg shadow border border-block"
-          placeholder="Search all columns..."
+          placeholder="Buscar"
           onChange={(value) => setGlobalFilter(String(value))}
         />
         <Button

@@ -8,34 +8,44 @@ import {
 } from '@tanstack/react-table'
 import type { ColumnSort } from '@tanstack/react-table'
 import { useParams } from 'react-router-dom'
-import { IBranch, branchGetOne } from '@/services/branchService'
+import {
+  IBranch,
+  IBranchUpdate,
+  branchGetOne,
+  branchUpdate,
+} from '@/services/branchService'
+import { ILoan } from '@/services/loanService'
+import { Field, Form, Formik } from 'formik'
+import {
+  Button,
+  Checkbox,
+  FormContainer,
+  FormItem,
+  Input,
+} from '@/components/ui'
+import * as Yup from 'yup'
 
 const { Tr, Th, Td, THead, TBody, Sorter } = Table
 
+const validationSchema = Yup.object().shape({
+  name: Yup.string().required('Obrigatório'),
+  email: Yup.string().email('Email inválido').required('Obrigatório'),
+})
+
 const BranchView = () => {
   const [sorting, setSorting] = useState<ColumnSort[]>([])
-  const [branch, setBranch] = useState<IBranch | null>(null)
+  const [branch, setBranch] = useState<IBranch>()
+  const [loans, setLoans] = useState<ILoan[]>([])
+  const [isEditing, setEditing] = useState<boolean>(false)
   const { id } = useParams()
 
-  useEffect(() => {
-    const getBranch = async () => {
-      try {
-        const { data } = await branchGetOne(Number(id))
-        setBranch(data)
-      } catch (error) {
-        console.log(error)
-      }
-    }
-    getBranch()
-  }, [id])
-
   const table = useReactTable({
-    data: branch.books,
+    data: loans,
     columns: [
       { header: 'Título', accessorKey: 'bookstore.book.title' },
       { header: 'ISBN', accessorKey: 'bookstore.book.isbn' },
-      { header: 'Quantidade', accessorKey: 'amount' },
-      { header: 'Qtd. Vendas', accessorKey: 'books.amount' },
+      { header: 'Quant.', accessorKey: 'amount' },
+      { header: 'Vendas', accessorKey: 'salesAmount' },
     ],
     state: {
       sorting,
@@ -45,59 +55,169 @@ const BranchView = () => {
     getSortedRowModel: getSortedRowModel(),
   })
 
+  async function handleSubmit(values: IBranchUpdate) {
+    try {
+      const { data } = await branchUpdate(Number(id), values)
+      setBranch(data)
+      setEditing(false)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    const getBranch = async () => {
+      try {
+        const { data } = await branchGetOne(Number(id))
+        setBranch(data)
+        setLoans(data.books)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    getBranch()
+  }, [id])
+
   return (
     <>
-      <Table>
-        <THead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <Tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <Th key={header.id} colSpan={header.colSpan}>
-                    {header.isPlaceholder ? null : (
-                      <div
-                        {...{
-                          className: header.column.getCanSort()
-                            ? 'cursor-pointer select-none'
-                            : '',
-                          onClick: header.column.getToggleSortingHandler(),
+      {branch && (
+        <>
+          <h3 className="mb-5">Ponto de venda | {branch?.name}</h3>
+          <Formik
+            initialValues={{
+              name: branch?.name,
+              email: branch?.email,
+              admin: branch?.admin,
+            }}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ touched, errors }) => (
+              <Form>
+                <FormContainer>
+                  <FormItem
+                    label="Nome"
+                    invalid={touched.name && errors.name ? true : false}
+                    errorMessage={errors.name?.toString()}
+                  >
+                    <Field
+                      type="text"
+                      autoComplete="off"
+                      name="name"
+                      placeholder="Nome"
+                      component={Input}
+                      disabled={!isEditing}
+                    />
+                  </FormItem>
+                  <FormItem
+                    label="Email"
+                    invalid={touched.email && errors.email ? true : false}
+                    errorMessage={errors.email?.toString()}
+                  >
+                    <Field
+                      type="text"
+                      autoComplete="off"
+                      name="email"
+                      placeholder="Email"
+                      component={Input}
+                      disabled={!isEditing}
+                    />
+                  </FormItem>
+                  <FormItem
+                    label="Administrador"
+                    invalid={touched.admin && errors.admin ? true : false}
+                    errorMessage={errors.admin?.toString()}
+                  >
+                    <Field
+                      type="checkbox"
+                      autoComplete="off"
+                      name="admin"
+                      placeholder="Administrador"
+                      component={Checkbox}
+                      disabled={!isEditing}
+                    />
+                  </FormItem>
+                  <FormItem>
+                    {isEditing ? (
+                      <Button type="submit" variant="solid" className="w-48">
+                        Salvar
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="twoTone"
+                        className="w-48"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          setEditing(true)
                         }}
                       >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                        {<Sorter sort={header.column.getIsSorted()} />}
-                      </div>
+                        Editar
+                      </Button>
                     )}
-                  </Th>
-                )
-              })}
-            </Tr>
-          ))}
-        </THead>
-        <TBody>
-          {table
-            .getRowModel()
-            .rows.slice(0, 10)
-            .map((row) => {
-              return (
-                <Tr key={row.id}>
-                  {row.getVisibleCells().map((cell) => {
+                  </FormItem>
+                </FormContainer>
+              </Form>
+            )}
+          </Formik>
+        </>
+      )}
+      {loans && (
+        <>
+          <h4 className="mt-5 mb-3">Livro em venda</h4>
+          <Table>
+            <THead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <Tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
                     return (
-                      <Td key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
+                      <Th key={header.id} colSpan={header.colSpan}>
+                        {header.isPlaceholder ? null : (
+                          <div
+                            {...{
+                              className: header.column.getCanSort()
+                                ? 'cursor-pointer select-none'
+                                : '',
+                              onClick: header.column.getToggleSortingHandler(),
+                            }}
+                          >
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                            {<Sorter sort={header.column.getIsSorted()} />}
+                          </div>
                         )}
-                      </Td>
+                      </Th>
                     )
                   })}
                 </Tr>
-              )
-            })}
-        </TBody>
-      </Table>
+              ))}
+            </THead>
+            <TBody>
+              {table
+                .getRowModel()
+                .rows.slice(0, 10)
+                .map((row) => {
+                  return (
+                    <Tr key={row.id}>
+                      {row.getVisibleCells().map((cell) => {
+                        return (
+                          <Td key={cell.id}>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext(),
+                            )}
+                          </Td>
+                        )
+                      })}
+                    </Tr>
+                  )
+                })}
+            </TBody>
+          </Table>
+        </>
+      )}
     </>
   )
 }

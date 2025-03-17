@@ -70,6 +70,20 @@ export async function loanGetAllByBookstoreId(bookstoreId: number) {
   })
 }
 
+export async function loanGetByBookTitle(title: string, branchId: string) {
+  return ApiService.fetchData<ILoan[]>({
+    url: `/loan/book/${title}/${branchId}`,
+    method: 'get',
+  })
+}
+
+export async function loanGetByBookISBN(isbn: string, branchId: string) {
+  return ApiService.fetchData<ILoan[]>({
+    url: `/loan/isbn/${isbn}/${branchId}`,
+    method: 'get',
+  })
+}
+
 export async function loanGetOne(id: number) {
   return ApiService.fetchData<ILoan>({
     url: `/loan/${id}`,

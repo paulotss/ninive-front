@@ -192,9 +192,8 @@ const BranchList = () => {
           {table.getRowModel().rows.map((row) => {
             return (
               <Tr
-                key={
-                  row.id
-                } /*onClick={() => navigate(`/estoque/${row.original.id}`)}*/
+                key={row.id}
+                onClick={() => navigate(`/loja/${row.original.id}`)}
               >
                 {row.getVisibleCells().map((cell) => {
                   return (

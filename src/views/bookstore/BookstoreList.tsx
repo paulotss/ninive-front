@@ -20,6 +20,7 @@ import type {
 } from '@tanstack/react-table'
 import type { InputHTMLAttributes } from 'react'
 import { bookstoreGetAll, IBookstore } from '@/services/bookstoreService'
+import dayjs from 'dayjs'
 
 interface DebouncedInputProps
   extends Omit<
@@ -57,7 +58,7 @@ function DebouncedInput({
   return (
     <div className="flex justify-end">
       <div className="flex items-center mb-4">
-        <span className="mr-2">Search:</span>
+        <span className="mr-2">Pesquisar:</span>
         <Input
           {...props}
           value={value}
@@ -91,22 +92,21 @@ const BookstoreList = () => {
       { header: 'Título', accessorKey: 'book.title' },
       { header: 'ISBN', accessorKey: 'book.isbn' },
       { header: 'Loja', accessorKey: 'store.name' },
-      { header: 'Estoque', accessorKey: 'book.amount' },
-      { header: 'Consg.', accessorKey: 'amount' },
+      { header: 'Estoque', accessorKey: 'amount' },
       {
         header: 'Data Consig.',
         accessorKey: 'consignmentDate',
         cell: (props) => {
-          const df = new Date(props.row.original.consignmentDate)
-          return `${df.getDay()}/${df.getMonth()}/${df.getFullYear()}`
+          const df = dayjs(new Date(props.row.original.consignmentDate))
+          return df.format('DD/MM/YYYY')
         },
       },
       {
         header: 'Validade',
         accessorKey: 'returnDate',
         cell: (props) => {
-          const df = new Date(props.row.original.returnDate)
-          return `${df.getDay()}/${df.getMonth()}/${df.getFullYear()}`
+          const df = dayjs(new Date(props.row.original.returnDate))
+          return df.format('DD/MM/YYYY')
         },
       },
     ],
@@ -118,8 +118,8 @@ const BookstoreList = () => {
   useEffect(() => {
     async function getBookstore() {
       try {
-        const resp = await bookstoreGetAll()
-        setBookStoreData(resp.data)
+        const { data } = await bookstoreGetAll()
+        setBookStoreData(data)
       } catch (e) {
         console.log(e)
       }
@@ -156,7 +156,7 @@ const BookstoreList = () => {
       <DebouncedInput
         value={globalFilter ?? ''}
         className="p-2 font-lg shadow border border-block"
-        placeholder="Search all columns..."
+        placeholder="Buscar"
         onChange={(value) => setGlobalFilter(String(value))}
       />
       <Table>

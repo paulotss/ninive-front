@@ -17,9 +17,17 @@ export interface IIncomingCreate {
   totalValue: number
 }
 
-export async function incomingCreate<IIncomingCreate>(data) {
-  return ApiService.fetchData<IIncomingCreate>({
+export async function incomingCreate(data: IIncomingCreate) {
+  return ApiService.fetchData<IIncoming, IIncomingCreate>({
     url: '/incoming',
+    method: 'post',
+    data: data,
+  })
+}
+
+export async function incomingCreateMany(data: IIncomingCreate[]) {
+  return ApiService.fetchData<IIncoming[], IIncomingCreate[]>({
+    url: '/incoming/create-many',
     method: 'post',
     data: data,
   })
