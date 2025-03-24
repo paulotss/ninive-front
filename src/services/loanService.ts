@@ -1,10 +1,10 @@
 import ApiService from './ApiService'
-import { IBookstore } from './bookstoreService'
+import { IBook } from './bookService'
 import { IBranch } from './branchService'
 
 export interface ILoan {
   id: number
-  bookstoreId: number
+  bookId: number
   branchId: number
   amount: number
   salesAmount: number
@@ -14,11 +14,11 @@ export interface ILoan {
   closed: boolean
   closedDate: Date | string
   branch?: IBranch
-  bookstore?: IBookstore
+  book?: IBook
 }
 
 export interface ILoanCreate {
-  bookstoreId: number
+  bookId: number
   branchId: number | string
   amount: number | string
   salesAmount: number
@@ -27,7 +27,7 @@ export interface ILoanCreate {
 }
 
 export interface ILoanUpdate {
-  bookstoreId?: number
+  bookId?: number
   branchId?: number
   amount?: number
   salesAmount?: number
@@ -63,9 +63,9 @@ export async function loanGetAll() {
   })
 }
 
-export async function loanGetAllByBookstoreId(bookstoreId: number) {
+export async function loanGetAllByBookstoreId(bookId: number) {
   return ApiService.fetchData<ILoan[]>({
-    url: `/loan/bookstore/${bookstoreId}`,
+    url: `/loan/bookstore/${bookId}`,
     method: 'get',
   })
 }

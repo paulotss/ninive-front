@@ -2,51 +2,46 @@ import ApiService from './ApiService'
 import { IBook } from './bookService'
 import { IStore } from './storeService'
 
-export interface IBookstore {
+export interface IAquisition {
   id: number
   bookId: number
   storeId: number
   tax: number
-  consignmentDate: Date | string
-  returnDate: Date
   amount: number
-  closed: boolean
-  closedDate: Date | string
+  date: Date | string
   book?: IBook
   store?: IStore
 }
 
-export interface IBookstoreCreate {
+export interface IAquisitionCreate {
   bookId: number
   storeId: number | string
   tax: number | string
-  returnDate: Date
+  date: Date
   amount: number | string
 }
 
-export interface IBookstoreUpdate {
+export interface IAquisitionUpdate {
   bookId?: number
   storeId?: number
   tax?: number
-  returnDate?: Date
   amount?: number
-  closed?: boolean
-  closedDate?: Date
+  date?: Date
 }
 
-export async function bookstoreCreate(data: IBookstoreCreate) {
-  return ApiService.fetchData<IBookstore, IBookstoreCreate>({
+export async function bookstoreCreate(data: IAquisitionCreate) {
+  return ApiService.fetchData<IAquisition, IAquisitionCreate>({
     url: '/book-store',
     method: 'post',
     data,
   })
 }
 
-export async function bookstoreUpdate<IBookstore, IBookstoreUpdate>(
+export async function bookstoreUpdate<IAquisition, IAquisitionUpdate>(
   id: number,
-  data: IBookstoreUpdate,
+  data: IAquisitionUpdate,
 ) {
-  return ApiService.fetchData<IBookstore, IBookstoreUpdate>({
+  return ApiService.fetchData<IAquisition, IAquisitionUpdate>({
     url: `/book-store/${id}`,
     method: 'patch',
     data,
@@ -54,28 +49,28 @@ export async function bookstoreUpdate<IBookstore, IBookstoreUpdate>(
 }
 
 export async function bookstoreGetAll() {
-  return ApiService.fetchData<IBookstore[]>({
+  return ApiService.fetchData<IAquisition[]>({
     url: '/book-store',
     method: 'get',
   })
 }
 
 export async function bookstoreGetAllByBookId(bookId: number) {
-  return ApiService.fetchData<IBookstore[]>({
+  return ApiService.fetchData<IAquisition[]>({
     url: `/book-store/book/${bookId}`,
     method: 'get',
   })
 }
 
 export async function bookstoreGetOne(id: number) {
-  return ApiService.fetchData<IBookstore>({
+  return ApiService.fetchData<IAquisition>({
     url: `/book-store/${id}`,
     method: 'get',
   })
 }
 
 export async function bookstoreRemove(id: number) {
-  return ApiService.fetchData<IBookstore>({
+  return ApiService.fetchData<IAquisition>({
     url: `/book-store/${id}`,
     method: 'delete',
   })

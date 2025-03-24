@@ -1,7 +1,9 @@
 import ApiService from './ApiService'
+import { IAquisition } from './acquisitionService'
 import { IBookstore } from './bookstoreService'
 import { IExpense } from './expenseService'
 import { IIncoming } from './incomingService'
+import { ILoan } from './loanService'
 import { IPublisher } from './publisherService'
 
 export interface IBook {
@@ -12,9 +14,12 @@ export interface IBook {
   description: string
   pages: number
   edition: number
+  coverPrice: string | number
   publishierId: number
   publishier?: IPublisher
   stores?: IBookstore[]
+  acquisitions: IAquisition[]
+  loans: ILoan[]
   expenses?: IExpense[]
   incomings?: IIncoming[]
 }

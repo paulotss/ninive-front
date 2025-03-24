@@ -78,7 +78,6 @@ const BookView = () => {
         ...values,
         storeId: Number(values.storeId),
         amount: Number(values.amount),
-        coverPrice: values.coverPrice.toString().replace(',', '.'),
       })
       const { data } = await bookGetOne(Number(id))
       setBook(data)
@@ -133,9 +132,7 @@ const BookView = () => {
   }
 
   function getLoansFilter(isClosed: boolean) {
-    return book?.stores.flatMap((s) =>
-      s.loans.filter((l) => l.closed === isClosed),
-    )
+    return book?.loans.filter((s) => s.closed === isClosed)
   }
 
   useEffect(() => {
