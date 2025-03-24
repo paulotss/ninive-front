@@ -14,7 +14,9 @@ export interface IBook {
   description: string
   pages: number
   edition: number
+  amount: number
   coverPrice: string | number
+  profitMargin: string | number
   publishierId: number
   publishier?: IPublisher
   stores?: IBookstore[]
@@ -31,6 +33,9 @@ export interface IBookCreate {
   description: string
   pages: number | string
   edition: number | string
+  amount: number | string
+  coverPrice: number | string
+  profitMargin: string | number
   publishierId: number | string
 }
 
@@ -41,6 +46,9 @@ export interface IBookUpdate {
   description?: string
   pages?: number
   edition?: number
+  amount?: number
+  coverPrice?: number | string
+  profitMargin?: string | number
   publishierId?: number
 }
 

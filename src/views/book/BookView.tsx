@@ -3,6 +3,7 @@ import {
   bookUpdate,
   IBook,
   IBookCreate,
+  IBookUpdate,
 } from '@/services/bookService'
 import { DatePicker, Input, Select, Spinner, Button } from '@/components/ui'
 import { FormItem, FormContainer } from '@/components/ui/Form'
@@ -14,11 +15,7 @@ import * as Yup from 'yup'
 import { IPublisher, publisherGetAll } from '@/services/publisherService'
 import { BsFileArrowDownFill, BsFileArrowUpFill } from 'react-icons/bs'
 import TableCompactBookstore from '@/components/custom/TableCompactBookstore'
-import {
-  getBookstoreAmount,
-  getLoanAmount,
-  getTotalAmount,
-} from '@/utils/amount'
+import { getBookstoreAmount, getLoanAmount } from '@/utils/amount'
 import TableCompactLoan from '@/components/custom/TableCompactLoan'
 import NewBookstore from '@/components/custom/NewBookstore'
 import {
@@ -44,6 +41,12 @@ const validationSchema = Yup.object().shape({
   edition: Yup.string()
     .required('Obrigatório')
     .matches(/^(0|[1-9][0-9]*)$/),
+  coverPrice: Yup.string()
+    .required()
+    .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Somento números'),
+  profitMargin: Yup.string()
+    .required()
+    .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Somento números'),
 })
 
 const { TabNav, TabList, TabContent } = Tabs
@@ -55,7 +58,7 @@ const BookView = () => {
   const [isEditing, setEditing] = useState<boolean>(false)
   const { id } = useParams()
 
-  const handleSubmit = async (values: IBookCreate) => {
+  const handleSubmit = async (values: IBookUpdate) => {
     setIsLoading(true)
     try {
       const { data } = await bookUpdate(Number(id), {
@@ -63,6 +66,7 @@ const BookView = () => {
         pages: Number(values.pages),
         edition: Number(values.edition),
         publishierId: Number(values.publishierId),
+        coverPrice: values.coverPrice.toString().replace(',', '.'),
       })
       setBook(data)
       setEditing(false)
@@ -90,7 +94,6 @@ const BookView = () => {
     try {
       await loanCreate({
         ...values,
-        profitMargin: Number(values.profitMargin),
         branchId: Number(values.branchId),
         amount: Number(values.amount),
       })
@@ -132,6 +135,7 @@ const BookView = () => {
   }
 
   function getLoansFilter(isClosed: boolean) {
+    if (!book?.loans) return null
     return book?.loans.filter((s) => s.closed === isClosed)
   }
 
@@ -164,6 +168,8 @@ const BookView = () => {
               publicationDate: new Date(book?.publicationDate),
               pages: book?.pages,
               edition: book?.edition,
+              coverPrice: book?.coverPrice.toString().replace('.', ','),
+              profitMargin: book?.profitMargin,
             }}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
@@ -301,6 +307,38 @@ const BookView = () => {
                       disabled={!isEditing}
                     />
                   </FormItem>
+                  <FormItem
+                    label="Preço de capa"
+                    invalid={
+                      errors.coverPrice && touched.coverPrice ? true : false
+                    }
+                    errorMessage={errors.coverPrice?.toString()}
+                  >
+                    <Field
+                      type="text"
+                      autoComplete="off"
+                      name="coverPrice"
+                      placeholder="00,00"
+                      component={Input}
+                      disabled={!isEditing}
+                    />
+                  </FormItem>
+                  <FormItem
+                    label="Margem de lucro %"
+                    invalid={
+                      errors.profitMargin && touched.profitMargin ? true : false
+                    }
+                    errorMessage={errors.profitMargin?.toString()}
+                  >
+                    <Field
+                      type="text"
+                      autoComplete="off"
+                      name="profitMargin"
+                      placeholder="%"
+                      component={Input}
+                      disabled={!isEditing}
+                    />
+                  </FormItem>
                   <FormItem>
                     {isEditing ? (
                       <Button type="submit" variant="solid" className="w-48">
@@ -327,21 +365,18 @@ const BookView = () => {
           <div className="flex">
             <div className="p-2 mb-5 border-2 border-dotted rounded-md">
               <p>
-                Estoque:{' '}
-                <span className="font-bold">
-                  {book && getTotalAmount(book.stores)}
-                </span>
+                Estoque: <span className="font-bold">{book?.amount}</span>
               </p>
               <p>
                 Consignados:{' '}
                 <span className="font-bold text-green-500">
-                  {book && getBookstoreAmount(book.stores)}
+                  {book && getBookstoreAmount(book?.stores)}
                 </span>
               </p>
               <p>
                 Em vendas:{' '}
                 <span className="font-bold text-red-500">
-                  {book && getLoanAmount(book.stores)}
+                  {book && getLoanAmount(book?.loans)}
                 </span>
               </p>
             </div>

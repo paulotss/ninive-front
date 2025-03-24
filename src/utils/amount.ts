@@ -1,20 +1,20 @@
 import { IBookstore } from '@/services/bookstoreService'
+import { ILoan } from '@/services/loanService'
 
-export function getBookstoreAmount(stores: IBookstore[]): number {
+export function getBookstoreAmount(stores: IBookstore[] | undefined): number {
+  if (!stores) return 0
   return stores.reduce((acc, s) => (acc += s.amount), 0)
 }
 
-export function getLoanAmount(stores: IBookstore[]): number {
-  return stores.reduce(
-    (accs, s) =>
-      (accs += s.loans.reduce(
-        (accl, l) => (accl += !l.closed ? l.amount : 0),
-        0,
-      )),
-    0,
-  )
+export function getLoanAmount(loans: ILoan[] | undefined): number {
+  if (!loans) return 0
+  return loans.reduce((acc, l) => (acc += l.amount), 0)
 }
 
-export function getTotalAmount(stores: IBookstore[]) {
-  return getBookstoreAmount(stores) - getLoanAmount(stores)
+export function getTotalAmount(
+  stores: IBookstore[] | undefined,
+  loans: ILoan[] | undefined,
+) {
+  if (!stores || !loans) return 0
+  return getBookstoreAmount(stores) - getLoanAmount(loans)
 }

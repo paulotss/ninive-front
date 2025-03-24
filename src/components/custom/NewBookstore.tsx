@@ -22,9 +22,6 @@ interface IProps {
 
 const validationSchema = Yup.object().shape({
   storeId: Yup.string().required('Obrigatório'),
-  coverPrice: Yup.string()
-    .required('Obrigatório')
-    .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, '00,00'),
   returnDate: Yup.date().required('Obrigatório'),
   amount: Yup.string()
     .required('Obrigatório')

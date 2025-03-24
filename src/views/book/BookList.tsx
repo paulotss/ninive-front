@@ -22,7 +22,6 @@ import type {
 import type { InputHTMLAttributes } from 'react'
 import { IBook, bookGetAll } from '@/services/bookService'
 import Button from '@/components/ui/Button'
-import { getTotalAmount } from '@/utils/amount'
 
 interface DebouncedInputProps
   extends Omit<
@@ -97,12 +96,26 @@ const BookList = () => {
       { header: 'Editora', accessorKey: 'publishier.name' },
       { header: 'Edição', accessorKey: 'edition' },
       {
-        header: 'Estoque',
-        accessorKey: 'stores',
+        header: 'Preço',
+        accessorKey: 'coverPrice',
         cell: (props) =>
-          props.row.original.stores
-            ? getTotalAmount(props.row.original.stores)
-            : 0,
+          Number(props.row.original.coverPrice).toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+          }),
+      },
+      {
+        header: 'Lucro',
+        accessorKey: 'profitMargin',
+        cell: (props) =>
+          Number(props.row.original.profitMargin).toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+          }),
+      },
+      {
+        header: 'Estoque',
+        accessorKey: 'amount',
       },
     ],
     [],

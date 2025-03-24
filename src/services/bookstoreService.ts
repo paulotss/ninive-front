@@ -10,6 +10,7 @@ export interface IBookstore {
   consignmentDate: Date | string
   returnDate: Date
   amount: number
+  discount: number
   closed: boolean
   closedDate: Date | string
   book?: IBook
@@ -22,6 +23,7 @@ export interface IBookstoreCreate {
   tax: number | string
   returnDate: Date
   amount: number | string
+  discount: number
 }
 
 export interface IBookstoreUpdate {
@@ -30,6 +32,7 @@ export interface IBookstoreUpdate {
   tax?: number
   returnDate?: Date
   amount?: number
+  discount?: number
   closed?: boolean
   closedDate?: Date
 }

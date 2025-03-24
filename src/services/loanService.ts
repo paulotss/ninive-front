@@ -10,7 +10,6 @@ export interface ILoan {
   salesAmount: number
   loanDate: Date
   returnDate: Date | string
-  profitMargin: number
   closed: boolean
   closedDate: Date | string
   branch?: IBranch
@@ -23,7 +22,6 @@ export interface ILoanCreate {
   amount: number | string
   salesAmount: number
   returnDate: Date
-  profitMargin: number | string
 }
 
 export interface ILoanUpdate {
@@ -32,7 +30,6 @@ export interface ILoanUpdate {
   amount?: number
   salesAmount?: number
   returnDate?: Date
-  profitMargin?: number
   closed?: boolean
   closedDate?: Date
 }

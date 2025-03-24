@@ -24,6 +24,12 @@ const validationSchema = Yup.object().shape({
   edition: Yup.string()
     .required('Obrigatório')
     .matches(/^(0|[1-9][0-9]*)$/, 'Somente números'),
+  coverPrice: Yup.string()
+    .required()
+    .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Somento números'),
+  profitMargin: Yup.string()
+    .required()
+    .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Somento números'),
 })
 
 const BookNew = () => {
@@ -31,12 +37,13 @@ const BookNew = () => {
   const navigate = useNavigate()
 
   async function handleSubmit(values: IBookCreate) {
-    console.log(values)
     try {
       await bookCreate({
         ...values,
         pages: Number(values.pages),
         edition: Number(values.edition),
+        coverPrice: values.coverPrice.toString().replace(',', '.'),
+        profitMargin: values.profitMargin.toString().replace(',', '.'),
       })
       navigate('/livros')
     } catch (e) {
@@ -68,6 +75,9 @@ const BookNew = () => {
           publicationDate: new Date(),
           pages: '',
           edition: '',
+          amount: 0,
+          coverPrice: '',
+          profitMargin: '',
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
@@ -191,6 +201,34 @@ const BookNew = () => {
                   autoComplete="off"
                   name="edition"
                   placeholder="Edição"
+                  component={Input}
+                />
+              </FormItem>
+              <FormItem
+                label="Preço de capa"
+                invalid={errors.coverPrice && touched.coverPrice ? true : false}
+                errorMessage={errors.coverPrice?.toString()}
+              >
+                <Field
+                  type="text"
+                  autoComplete="off"
+                  name="coverPrice"
+                  placeholder="00,00"
+                  component={Input}
+                />
+              </FormItem>
+              <FormItem
+                label="Margem de lucro %"
+                invalid={
+                  errors.profitMargin && touched.profitMargin ? true : false
+                }
+                errorMessage={errors.profitMargin?.toString()}
+              >
+                <Field
+                  type="text"
+                  autoComplete="off"
+                  name="profitMargin"
+                  placeholder="%"
                   component={Input}
                 />
               </FormItem>
