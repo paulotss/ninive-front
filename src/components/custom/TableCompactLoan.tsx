@@ -23,7 +23,6 @@ const TableCompactLoan = ({
           <Th>Quantidade</Th>
           <Th>Vendas</Th>
           <Th>Quant. Total</Th>
-          <Th>Preço de capa</Th>
           <Th>Ações</Th>
         </Tr>
       </THead>

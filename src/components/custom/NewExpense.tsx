@@ -6,7 +6,6 @@ interface IProps {
   payload: IExpenseCreate
   storeName: string
   bookTitle: string
-  salesAmount: number
   bookstoreId: number
   isLoan: boolean
   handleSubmitExpense(bookstoreId, values: IExpenseCreate): void
@@ -16,7 +15,6 @@ const NewExpense = ({
   payload,
   storeName,
   bookTitle,
-  salesAmount,
   bookstoreId,
   isLoan,
   handleSubmitExpense,
@@ -52,9 +50,7 @@ const NewExpense = ({
             Editora: <span className="font-bold">{storeName}</span>
           </p>
           <p>
-            Quantidade:{' '}
-            <span className="font-bold">{payload.amount - salesAmount}</span>{' '}
-            <span className="italic">de ({payload.amount})</span>
+            Quantidade: <span className="italic">({payload.amount})</span>
           </p>
           <p>
             Valor total:{' '}

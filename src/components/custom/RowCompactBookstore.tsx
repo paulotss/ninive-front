@@ -9,14 +9,12 @@ const { Tr, Td } = Table
 
 interface IProps {
   bookstore: IBookstore
-  salesAmount: number
   handleSubmitLoan(values: ILoanCreate): void
   handleSubmitExpense(bookstoreId: number, values: IExpenseCreate): void
 }
 
 const RowCompactBookstore = ({
   bookstore,
-  salesAmount,
   handleSubmitLoan,
   handleSubmitExpense,
 }: IProps) => {
@@ -24,13 +22,11 @@ const RowCompactBookstore = ({
     <Tr>
       <Td>{bookstore.store.name}</Td>
       <Td>{bookstore.amount}</Td>
-      <Td>{salesAmount}</Td>
-      <Td>{bookstore.coverPrice}</Td>
       <Td>
         <div className="flex items-center">
           <NewLoan
-            bookstoreId={bookstore.id}
-            maxAmount={bookstore.amount - salesAmount}
+            bookId={bookstore.bookId}
+            maxAmount={bookstore.amount}
             handleSubmitLoan={handleSubmitLoan}
           />
           <NewExpense
@@ -38,11 +34,11 @@ const RowCompactBookstore = ({
               bookId: bookstore.bookId,
               storeId: bookstore.storeId,
               amount: bookstore.amount,
-              totalValue: Number(bookstore.coverPrice) * salesAmount,
+              totalValue: 0,
             }}
-            salesAmount={salesAmount}
             isLoan={
-              bookstore.loans.filter((l) => l.closed === false).length > 0
+              bookstore.book?.loans?.filter((l) => l.closed === false).length >
+              0
             }
             storeName={bookstore.store.name}
             bookTitle={bookstore.book.title}

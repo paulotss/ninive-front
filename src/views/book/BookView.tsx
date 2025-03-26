@@ -376,7 +376,7 @@ const BookView = () => {
               <p>
                 Em vendas:{' '}
                 <span className="font-bold text-red-500">
-                  {book && getLoanAmount(book?.loans)}
+                  {book && getLoanAmount(getLoansFilter(false))}
                 </span>
               </p>
             </div>
@@ -405,7 +405,7 @@ const BookView = () => {
             </TabContent>
             <TabContent value="tab2">
               <TableCompactBookstore
-                bookstores={book?.stores}
+                book={book}
                 handleSubmitLoan={handleSubmitLoan}
                 handleSubmitExpense={handleSubmitExpense}
               />

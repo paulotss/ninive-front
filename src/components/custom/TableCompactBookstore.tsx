@@ -1,19 +1,19 @@
 import { Table } from '../ui'
-import { IBookstore } from '@/services/bookstoreService'
 import RowCompactBookstore from './RowCompactBookstore'
 import { ILoanCreate } from '@/services/loanService'
 import { IExpenseCreate } from '@/services/expenseService'
+import { IBook } from '@/services/bookService'
 
 const { Tr, Th, THead, TBody } = Table
 
 interface IProps {
-  bookstores: IBookstore[]
+  book: IBook
   handleSubmitLoan(values: ILoanCreate): void
   handleSubmitExpense(bookstoreId: number, values: IExpenseCreate): void
 }
 
 const TableCompactBookstore = ({
-  bookstores,
+  book,
   handleSubmitLoan,
   handleSubmitExpense,
 }: IProps) => {
@@ -23,18 +23,15 @@ const TableCompactBookstore = ({
         <Tr>
           <Th>Loja</Th>
           <Th>Quantidade</Th>
-          <Th>Vendas</Th>
-          <Th>Preço de capa</Th>
           <Th>Ações</Th>
         </Tr>
       </THead>
       <TBody>
-        {bookstores?.map((b) => (
+        {book?.stores.map((b) => (
           <RowCompactBookstore
             key={b.id}
             handleSubmitLoan={handleSubmitLoan}
             bookstore={b}
-            salesAmount={b.loans.reduce((acc, l) => (acc += l.salesAmount), 0)}
             handleSubmitExpense={handleSubmitExpense}
           />
         ))}

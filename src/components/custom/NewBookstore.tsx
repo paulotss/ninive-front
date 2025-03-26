@@ -23,6 +23,8 @@ interface IProps {
 const validationSchema = Yup.object().shape({
   storeId: Yup.string().required('Obrigatório'),
   returnDate: Yup.date().required('Obrigatório'),
+  discount: Yup.string().required('Obrigatório'),
+  tax: Yup.string().required('Obrigatório'),
   amount: Yup.string()
     .required('Obrigatório')
     .matches(/^(0|[1-9][0-9]*)$/, 'Somente números'),
@@ -77,10 +79,10 @@ const NewBookstore = ({ bookId, handleSubmitBookstore }: IProps) => {
             initialValues={{
               bookId,
               storeId: '',
-              tax: 0,
-              coverPrice: '',
+              tax: '',
               returnDate: new Date(),
               amount: '',
+              discount: '',
             }}
             validationSchema={validationSchema}
             onSubmit={handleDialogOk}
@@ -117,17 +119,28 @@ const NewBookstore = ({ bookId, handleSubmitBookstore }: IProps) => {
                     </Field>
                   </FormItem>
                   <FormItem
-                    label="Preço de capa"
-                    invalid={
-                      touched.coverPrice && errors.coverPrice ? true : false
-                    }
-                    errorMessage={errors.coverPrice?.toString()}
+                    label="Desconto %"
+                    invalid={touched.discount && errors.discount ? true : false}
+                    errorMessage={errors.discount?.toString()}
                   >
                     <Field
                       type="text"
                       autoComplete="off"
-                      name="coverPrice"
-                      placeholder="0,00"
+                      name="discount"
+                      placeholder="%"
+                      component={Input}
+                    />
+                  </FormItem>
+                  <FormItem
+                    label="Frete %"
+                    invalid={touched.tax && errors.tax ? true : false}
+                    errorMessage={errors.tax?.toString()}
+                  >
+                    <Field
+                      type="text"
+                      autoComplete="off"
+                      name="tax"
+                      placeholder="%"
                       component={Input}
                     />
                   </FormItem>

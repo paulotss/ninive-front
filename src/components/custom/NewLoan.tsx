@@ -16,12 +16,12 @@ import { ILoanCreate } from '@/services/loanService'
 import { IBranch, branchGetAll } from '@/services/branchService'
 
 interface IProps {
-  bookstoreId: number
+  bookId: number
   maxAmount: number
   handleSubmitLoan(values: ILoanCreate): void
 }
 
-const NewLoan = ({ bookstoreId, maxAmount, handleSubmitLoan }: IProps) => {
+const NewLoan = ({ bookId, maxAmount, handleSubmitLoan }: IProps) => {
   const [dialogIsOpen, setDialogIsOpen] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [branchs, setBranchs] = useState<IBranch[]>([])
@@ -69,18 +69,14 @@ const NewLoan = ({ bookstoreId, maxAmount, handleSubmitLoan }: IProps) => {
         {!isLoading ? (
           <Formik
             initialValues={{
-              bookstoreId,
+              bookId,
               branchId: '',
-              profitMargin: '',
               returnDate: new Date(),
               amount: '',
               salesAmount: 0,
             }}
             validationSchema={Yup.object().shape({
               branchId: Yup.string().required('Obrigatório'),
-              profitMargin: Yup.string()
-                .required('Obrigatório')
-                .matches(/^(0|[1-9][0-9]*)$/, 'Somente números'),
               returnDate: Yup.date().required('Obrigatório'),
               amount: Yup.number()
                 .max(maxAmount)
@@ -119,21 +115,6 @@ const NewLoan = ({ bookstoreId, maxAmount, handleSubmitLoan }: IProps) => {
                         />
                       )}
                     </Field>
-                  </FormItem>
-                  <FormItem
-                    label="Margem de lucro"
-                    invalid={
-                      touched.profitMargin && errors.profitMargin ? true : false
-                    }
-                    errorMessage={errors.profitMargin?.toString()}
-                  >
-                    <Field
-                      type="text"
-                      autoComplete="off"
-                      name="profitMargin"
-                      placeholder="0"
-                      component={Input}
-                    />
                   </FormItem>
                   <FormItem
                     label="Devolução"

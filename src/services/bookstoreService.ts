@@ -23,7 +23,7 @@ export interface IBookstoreCreate {
   tax: number | string
   returnDate: Date
   amount: number | string
-  discount: number
+  discount: number | string
 }
 
 export interface IBookstoreUpdate {

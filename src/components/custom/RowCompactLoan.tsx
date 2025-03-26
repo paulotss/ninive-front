@@ -13,15 +13,14 @@ const { Tr, Td } = Table
 const RowCompactLoan = ({ loan, bookTitle, handleSubmitIncoming }: IProps) => {
   return (
     <Tr>
-      <Td>{loan.branch.name}</Td>
+      <Td>{loan.branch?.name}</Td>
       <Td>{loan.amount}</Td>
       <Td>{loan.salesAmount}</Td>
       <Td>{loan.amount - loan.salesAmount}</Td>
-      <Td>{loan.bookstore.coverPrice}</Td>
       <Td>
         <NewIncoming
           bookTitle={bookTitle}
-          branchName={loan.branch.name}
+          branchName={loan.branch?.name}
           amount={loan.amount}
           salesAmount={loan.salesAmount}
           loanId={loan.id}
