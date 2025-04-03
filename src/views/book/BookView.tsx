@@ -383,6 +383,7 @@ const BookView = () => {
             <div className="p-3">
               <NewBookstore
                 bookId={Number(id)}
+                coverPrice={Number(book.coverPrice)}
                 handleSubmitBookstore={handleSubmitBookstore}
               />
             </div>

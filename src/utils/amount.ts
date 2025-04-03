@@ -18,3 +18,13 @@ export function getTotalAmount(
   if (!stores || !loans) return 0
   return getBookstoreAmount(stores) - getLoanAmount(loans)
 }
+
+export function salePrice(
+  price: number,
+  tax: number,
+  discount: number,
+): number {
+  const taxValue = price * (tax / 100)
+  const discountValue = price * (discount / 100)
+  return price - discountValue + taxValue
+}
