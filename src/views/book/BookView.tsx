@@ -25,6 +25,7 @@ import {
 } from '@/services/bookstoreService'
 import { ILoanCreate, loanCreate, loanUpdate } from '@/services/loanService'
 import { expenseCreate, IExpenseCreate } from '@/services/expenseService'
+import NewLoan from '@/components/custom/NewLoan'
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('Obrigatório'),
@@ -83,6 +84,9 @@ const BookView = () => {
         storeId: Number(values.storeId),
         amount: Number(values.amount),
       })
+      await bookUpdate(Number(id), {
+        amount: book.amount + Number(values.amount),
+      })
       const { data } = await bookGetOne(Number(id))
       setBook(data)
     } catch (e) {
@@ -114,6 +118,7 @@ const BookView = () => {
         closed: true,
         closedDate: new Date(),
       })
+      await bookUpdate(Number(id), { amount: book.amount - values.amount })
       const { data } = await bookGetOne(Number(id))
       setBook(data)
     } catch (e) {
@@ -383,8 +388,14 @@ const BookView = () => {
             <div className="p-3">
               <NewBookstore
                 bookId={Number(id)}
-                coverPrice={Number(book.coverPrice)}
+                coverPrice={Number(book?.coverPrice)}
                 handleSubmitBookstore={handleSubmitBookstore}
+              />
+              <br />
+              <NewLoan
+                bookId={book?.id}
+                maxAmount={book?.amount}
+                handleSubmitLoan={handleSubmitLoan}
               />
             </div>
           </div>

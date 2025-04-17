@@ -23,6 +23,9 @@ const TableCompactBookstore = ({
         <Tr>
           <Th>Loja</Th>
           <Th>Quantidade</Th>
+          <Th>Preço</Th>
+          <Th>Desconto</Th>
+          <Th>Frete</Th>
           <Th>Ações</Th>
         </Tr>
       </THead>
@@ -33,6 +36,7 @@ const TableCompactBookstore = ({
             handleSubmitLoan={handleSubmitLoan}
             bookstore={b}
             handleSubmitExpense={handleSubmitExpense}
+            coverPrice={book.coverPrice}
           />
         ))}
       </TBody>

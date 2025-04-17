@@ -1,13 +1,16 @@
-import { useState } from 'react'
-import { Button, Dialog } from '../ui'
+import { ChangeEvent, useState } from 'react'
+import { Button, Dialog, Input } from '../ui'
 import { IExpenseCreate } from '@/services/expenseService'
+import { salePrice } from '@/utils/amount'
 
 interface IProps {
   payload: IExpenseCreate
   storeName: string
   bookTitle: string
   bookstoreId: number
-  isLoan: boolean
+  coverPrice: number | string
+  tax: number
+  discount: number
   handleSubmitExpense(bookstoreId, values: IExpenseCreate): void
 }
 
@@ -16,21 +19,33 @@ const NewExpense = ({
   storeName,
   bookTitle,
   bookstoreId,
-  isLoan,
+  coverPrice,
+  tax,
+  discount,
   handleSubmitExpense,
 }: IProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
+  const [amount, setAmount] = useState<number>(0)
+  const [totalValue, setTotalValue] = useState<number>(0)
 
   async function handleSubmit() {
-    handleSubmitExpense(bookstoreId, payload)
+    handleSubmitExpense(bookstoreId, {
+      ...payload,
+      amount,
+      totalValue: totalValue * amount,
+    })
     setIsDialogOpen(false)
+  }
+
+  function handleAmountInput({ target }: ChangeEvent<HTMLInputElement>) {
+    setAmount(Number(target.value))
+    setTotalValue(salePrice(Number(coverPrice), tax, discount))
   }
 
   return (
     <>
       <Button
         type="button"
-        disabled={isLoan}
         size="xs"
         onClick={() => {
           setIsDialogOpen(true)
@@ -50,12 +65,18 @@ const NewExpense = ({
             Editora: <span className="font-bold">{storeName}</span>
           </p>
           <p>
-            Quantidade: <span className="italic">({payload.amount})</span>
+            Quantidade:{' '}
+            <Input
+              type="text"
+              name="amount"
+              value={amount}
+              onChange={handleAmountInput}
+            />
           </p>
           <p>
             Valor total:{' '}
             <span className="font-bold">
-              {payload.totalValue.toLocaleString('pt-BR', {
+              {(totalValue * amount).toLocaleString('pt-BR', {
                 style: 'currency',
                 currency: 'BRL',
               })}

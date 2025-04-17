@@ -48,14 +48,16 @@ const NewLoan = ({ bookId, maxAmount, handleSubmitLoan }: IProps) => {
       <Button
         type="button"
         size="xs"
-        shape="circle"
-        className="mr-2"
+        className="mt-1"
         icon={<BsFileArrowUpFill />}
         color="red-500"
         variant="solid"
         disabled={!(maxAmount > 0)}
         onClick={handleOpenDialog}
-      />
+      >
+        {' '}
+        Emprestar{' '}
+      </Button>
 
       <Dialog
         isOpen={dialogIsOpen}
