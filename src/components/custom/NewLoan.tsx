@@ -12,16 +12,23 @@ import {
 import { Field, Form, Formik, FieldProps } from 'formik'
 import * as Yup from 'yup'
 import { BsFileArrowUpFill } from 'react-icons/bs'
-import { ILoanCreate } from '@/services/loanService'
-import { IBranch, branchGetAll } from '@/services/branchService'
+import { ILoanCreate } from '../../services/loanService'
+import { IBranch, branchGetAll } from '../../services/branchService'
+import { salePrice } from '../../utils/amount'
 
 interface IProps {
   bookId: number
+  coverPrice: number | string
   maxAmount: number
   handleSubmitLoan(values: ILoanCreate): void
 }
 
-const NewLoan = ({ bookId, maxAmount, handleSubmitLoan }: IProps) => {
+const NewLoan = ({
+  bookId,
+  coverPrice,
+  maxAmount,
+  handleSubmitLoan,
+}: IProps) => {
   const [dialogIsOpen, setDialogIsOpen] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [branchs, setBranchs] = useState<IBranch[]>([])
@@ -75,14 +82,19 @@ const NewLoan = ({ bookId, maxAmount, handleSubmitLoan }: IProps) => {
               branchId: '',
               returnDate: new Date(),
               amount: '',
+              discount: '',
               salesAmount: 0,
             }}
             validationSchema={Yup.object().shape({
               branchId: Yup.string().required('Obrigatório'),
               returnDate: Yup.date().required('Obrigatório'),
               amount: Yup.number()
-                .max(maxAmount)
-                .min(1)
+                .max(maxAmount, `Máximo: ${maxAmount}`)
+                .min(1, 'Mínimo: 1')
+                .required('Obrigatório'),
+              discount: Yup.number()
+                .max(100, 'Máximo: 100')
+                .min(1, 'Mínimo: 1')
                 .required('Obrigatório'),
             })}
             onSubmit={handleDialogOk}
@@ -150,6 +162,45 @@ const NewLoan = ({ bookId, maxAmount, handleSubmitLoan }: IProps) => {
                       component={Input}
                     />
                   </FormItem>
+                  <div className="flex">
+                    <FormItem
+                      label="Desconto(%)"
+                      invalid={
+                        errors.discount && touched.discount ? true : false
+                      }
+                      errorMessage={errors.discount?.toString()}
+                    >
+                      <Field
+                        type="number"
+                        autoComplete="off"
+                        name="discount"
+                        component={Input}
+                      />
+                    </FormItem>
+                    <div className="p-5 text-right w-full">
+                      <p>
+                        Preço de capa:{' '}
+                        <span className="text-blue-600 font-bold text-lg">
+                          {Number(coverPrice).toLocaleString('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL',
+                          })}
+                        </span>
+                      </p>
+                      <p>
+                        Preço de venda:{' '}
+                        <span className="text-green-600 font-bold text-lg">
+                          {salePrice(
+                            Number(coverPrice),
+                            Number(values.discount),
+                          ).toLocaleString('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL',
+                          })}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
                   <FormItem>
                     <Button type="submit" variant="solid">
                       Salvar

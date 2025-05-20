@@ -26,6 +26,7 @@ import {
 import { ILoanCreate, loanCreate, loanUpdate } from '@/services/loanService'
 import { expenseCreate, IExpenseCreate } from '@/services/expenseService'
 import NewLoan from '@/components/custom/NewLoan'
+import { IIncomingCreate, incomingCreate } from '@/services/incomingService'
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('Obrigatório'),
@@ -98,8 +99,12 @@ const BookView = () => {
     try {
       await loanCreate({
         ...values,
+        discount: values.discount.toString(),
         branchId: Number(values.branchId),
         amount: Number(values.amount),
+      })
+      await bookUpdate(Number(id), {
+        amount: book.amount - Number(values.amount),
       })
       const { data } = await bookGetOne(Number(id))
       setBook(data)
@@ -126,11 +131,20 @@ const BookView = () => {
     }
   }
 
-  async function handleSubmitIncoming(loanId: number) {
+  async function handleSubmitIncoming(
+    loanId: number,
+    returningAmount: number,
+    newIncoming: IIncomingCreate,
+  ) {
     try {
       await loanUpdate(loanId, {
         closed: true,
         closedDate: new Date(),
+        salesAmount: newIncoming.amount,
+      })
+      await incomingCreate(newIncoming)
+      await bookUpdate(Number(id), {
+        amount: book.amount + returningAmount,
       })
       const { data } = await bookGetOne(Number(id))
       setBook(data)
@@ -394,7 +408,8 @@ const BookView = () => {
               <br />
               <NewLoan
                 bookId={book?.id}
-                maxAmount={book?.amount}
+                coverPrice={book?.coverPrice}
+                maxAmount={book?.amount - getLoanAmount(getLoansFilter(false))}
                 handleSubmitLoan={handleSubmitLoan}
               />
             </div>
@@ -412,6 +427,7 @@ const BookView = () => {
               <TableCompactLoan
                 loans={getLoansFilter(false)}
                 bookTitle={book?.title}
+                coverPrice={book?.coverPrice}
                 handleSubmitIncoming={handleSubmitIncoming}
               />
             </TabContent>

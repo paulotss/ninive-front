@@ -1,18 +1,25 @@
 import { Table } from '../ui'
 import { ILoan } from '@/services/loanService'
 import RowCompactLoan from './RowCompactLoan'
+import { IIncomingCreate } from '@/services/incomingService'
 
 const { Tr, Th, THead, TBody } = Table
 
 interface IProps {
   loans: ILoan[]
   bookTitle: string
-  handleSubmitIncoming(loanId: number): void
+  coverPrice: number | string
+  handleSubmitIncoming(
+    loanId: number,
+    returningAmount: number,
+    newIncoming: IIncomingCreate,
+  ): void
 }
 
 const TableCompactLoan = ({
   loans,
   bookTitle,
+  coverPrice,
   handleSubmitIncoming,
 }: IProps) => {
   return (
@@ -21,8 +28,9 @@ const TableCompactLoan = ({
         <Tr>
           <Th>Local</Th>
           <Th>Quantidade</Th>
-          <Th>Vendas</Th>
-          <Th>Quant. Total</Th>
+          <Th>Devolução</Th>
+          <Th>Desconto</Th>
+          <Th>Valor de venda</Th>
           <Th>Ações</Th>
         </Tr>
       </THead>
@@ -32,6 +40,7 @@ const TableCompactLoan = ({
             key={l.id}
             loan={l}
             bookTitle={bookTitle}
+            coverPrice={coverPrice}
             handleSubmitIncoming={handleSubmitIncoming}
           />
         ))}

@@ -14,7 +14,7 @@ import * as Yup from 'yup'
 import { IStore, storeGetAll } from '@/services/storeService'
 import { BsFileArrowDownFill } from 'react-icons/bs'
 import { IBookstoreCreate } from '@/services/bookstoreService'
-import { salePrice } from '@/utils/amount'
+import { discountPrice } from '@/utils/amount'
 
 interface IProps {
   bookId: number
@@ -159,7 +159,7 @@ const NewBookstore = ({
                       </div>
                       <div className="p-5 text-right w-full">
                         <p className="mb-5">
-                          Preço de capa: <hr />
+                          Preço de capa:{' '}
                           <span className="text-blue-600 font-bold text-lg">
                             {coverPrice.toLocaleString('pt-BR', {
                               style: 'currency',
@@ -168,9 +168,9 @@ const NewBookstore = ({
                           </span>
                         </p>
                         <p>
-                          Preço final: <hr />
+                          Preço final:{' '}
                           <span className="text-green-600 font-bold text-lg">
-                            {salePrice(
+                            {discountPrice(
                               coverPrice,
                               Number(values.tax),
                               Number(values.discount),

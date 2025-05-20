@@ -3,7 +3,7 @@ import { Table } from '../ui'
 import { ILoanCreate } from '@/services/loanService'
 import NewExpense from './NewExpense'
 import { IExpenseCreate } from '@/services/expenseService'
-import { salePrice } from '@/utils/amount'
+import { discountPrice } from '@/utils/amount'
 
 const { Tr, Td } = Table
 
@@ -24,7 +24,7 @@ const RowCompactBookstore = ({
       <Td>{bookstore.store.name}</Td>
       <Td>{bookstore.amount}</Td>
       <Td>
-        {salePrice(
+        {discountPrice(
           Number(coverPrice),
           bookstore.tax,
           bookstore.discount,
@@ -50,6 +50,7 @@ const RowCompactBookstore = ({
             coverPrice={coverPrice}
             tax={bookstore.tax}
             discount={bookstore.discount}
+            bookstore={bookstore}
             handleSubmitExpense={handleSubmitExpense}
           />
         </div>

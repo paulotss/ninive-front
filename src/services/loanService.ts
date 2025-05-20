@@ -7,6 +7,7 @@ export interface ILoan {
   bookId: number
   branchId: number
   amount: number
+  discount: number
   salesAmount: number
   loanDate: Date
   returnDate: Date | string
@@ -20,6 +21,7 @@ export interface ILoanCreate {
   bookId: number
   branchId: number | string
   amount: number | string
+  discount: number | string
   salesAmount: number
   returnDate: Date
 }

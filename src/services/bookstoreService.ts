@@ -7,10 +7,10 @@ export interface IBookstore {
   bookId: number
   storeId: number
   tax: number
+  discount: number
   consignmentDate: Date | string
   returnDate: Date
   amount: number
-  discount: number
   closed: boolean
   closedDate: Date | string
   book?: IBook
@@ -21,9 +21,9 @@ export interface IBookstoreCreate {
   bookId: number
   storeId: number | string
   tax: number | string
+  discount: number | string
   returnDate: Date
   amount: number | string
-  discount: number | string
 }
 
 export interface IBookstoreUpdate {
