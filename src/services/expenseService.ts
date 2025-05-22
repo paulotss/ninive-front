@@ -16,9 +16,9 @@ export interface IExpense {
 
 export interface IExpenseCreate {
   bookId: number
-  storeId: number
+  storeId: number | string
   amount: number
-  totalValue: number
+  totalValue: number | string
 }
 
 export async function expenseCreate<IExpenseCreate>(data) {

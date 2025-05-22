@@ -21,6 +21,8 @@ import type {
 import type { InputHTMLAttributes } from 'react'
 import { bookstoreGetAll, IBookstore } from '@/services/bookstoreService'
 import dayjs from 'dayjs'
+import { useNavigate } from 'react-router-dom'
+import ReturnStatus from '@/components/custom/ReturnStatus'
 
 interface DebouncedInputProps
   extends Omit<
@@ -56,15 +58,12 @@ function DebouncedInput({
   }, [value])
 
   return (
-    <div className="flex justify-end">
-      <div className="flex items-center mb-4">
-        <span className="mr-2">Pesquisar:</span>
-        <Input
-          {...props}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
-      </div>
+    <div className="w-full mb-4">
+      <Input
+        {...props}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+      />
     </div>
   )
 }
@@ -86,15 +85,16 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 const BookstoreList = () => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')
+  const navigate = useNavigate()
 
   const columns = useMemo<ColumnDef<IBookstore>[]>(
     () => [
       { header: 'Título', accessorKey: 'book.title' },
       { header: 'ISBN', accessorKey: 'book.isbn' },
-      { header: 'Loja', accessorKey: 'store.name' },
-      { header: 'Estoque', accessorKey: 'amount' },
+      { header: 'Forncedor', accessorKey: 'store.name' },
+      { header: 'Quant.', accessorKey: 'amount' },
       {
-        header: 'Data Consig.',
+        header: 'Entrada',
         accessorKey: 'consignmentDate',
         cell: (props) => {
           const df = dayjs(new Date(props.row.original.consignmentDate))
@@ -105,8 +105,11 @@ const BookstoreList = () => {
         header: 'Validade',
         accessorKey: 'returnDate',
         cell: (props) => {
-          const df = dayjs(new Date(props.row.original.returnDate))
-          return df.format('DD/MM/YYYY')
+          return (
+            <ReturnStatus
+              returnDate={dayjs(new Date(props.row.original.returnDate))}
+            />
+          )
         },
       },
     ],
@@ -192,9 +195,8 @@ const BookstoreList = () => {
           {table.getRowModel().rows.map((row) => {
             return (
               <Tr
-                key={
-                  row.id
-                } /*onClick={() => navigate(`/estoque/${row.original.id}`)}*/
+                key={row.id}
+                onClick={() => navigate(`/consignado/${row.original.id}`)}
               >
                 {row.getVisibleCells().map((cell) => {
                   return (

@@ -4,6 +4,9 @@ import { ILoanCreate } from '@/services/loanService'
 import NewExpense from './NewExpense'
 import { IExpenseCreate } from '@/services/expenseService'
 import { discountPrice } from '@/utils/amount'
+import { MdWatchLater } from 'react-icons/md'
+import dayjs from 'dayjs'
+import ReturnStatus from './ReturnStatus'
 
 const { Tr, Td } = Table
 
@@ -11,7 +14,11 @@ interface IProps {
   bookstore: IBookstore
   coverPrice: number | string
   handleSubmitLoan(values: ILoanCreate): void
-  handleSubmitExpense(bookstoreId: number, values: IExpenseCreate): void
+  handleSubmitExpense(
+    bookstoreId: number,
+    newBookAmount: number,
+    values: IExpenseCreate,
+  ): void
 }
 
 const RowCompactBookstore = ({
@@ -36,20 +43,12 @@ const RowCompactBookstore = ({
       <Td>{`${bookstore.discount}%`}</Td>
       <Td>{`${bookstore.tax}%`}</Td>
       <Td>
+        <ReturnStatus returnDate={dayjs(bookstore.returnDate)} />
+      </Td>
+      <Td>
         <div className="flex items-center">
           <NewExpense
-            payload={{
-              bookId: bookstore.bookId,
-              storeId: bookstore.storeId,
-              amount: 0,
-              totalValue: 0,
-            }}
-            storeName={bookstore.store.name}
-            bookTitle={bookstore.book.title}
-            bookstoreId={bookstore.id}
             coverPrice={coverPrice}
-            tax={bookstore.tax}
-            discount={bookstore.discount}
             bookstore={bookstore}
             handleSubmitExpense={handleSubmitExpense}
           />

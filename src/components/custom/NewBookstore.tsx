@@ -63,6 +63,7 @@ const NewBookstore = ({
       <Button
         type="button"
         size="xs"
+        className="w-32"
         icon={<BsFileArrowDownFill />}
         color="green-500"
         variant="solid"

@@ -55,7 +55,7 @@ const NewLoan = ({
       <Button
         type="button"
         size="xs"
-        className="mt-1"
+        className="mt-1 w-32"
         icon={<BsFileArrowUpFill />}
         color="red-500"
         variant="solid"

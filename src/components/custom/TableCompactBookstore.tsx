@@ -9,7 +9,11 @@ const { Tr, Th, THead, TBody } = Table
 interface IProps {
   book: IBook
   handleSubmitLoan(values: ILoanCreate): void
-  handleSubmitExpense(bookstoreId: number, values: IExpenseCreate): void
+  handleSubmitExpense(
+    bookstoreId: number,
+    newBookAmount: number,
+    values: IExpenseCreate,
+  ): void
 }
 
 const TableCompactBookstore = ({
@@ -21,11 +25,12 @@ const TableCompactBookstore = ({
     <Table compact>
       <THead>
         <Tr>
-          <Th>Loja</Th>
-          <Th>Quantidade</Th>
-          <Th>Preço</Th>
+          <Th>Fornecedor</Th>
+          <Th>Quant.</Th>
+          <Th>Valor</Th>
           <Th>Desconto</Th>
           <Th>Frete</Th>
+          <Th>Devolução</Th>
           <Th>Ações</Th>
         </Tr>
       </THead>

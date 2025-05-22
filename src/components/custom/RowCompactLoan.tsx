@@ -4,6 +4,8 @@ import NewIncoming from './NewIncoming'
 import dayjs from 'dayjs'
 import { salePrice } from '@/utils/amount'
 import { IIncomingCreate } from '@/services/incomingService'
+import { MdWatchLater } from 'react-icons/md'
+import ReturnStatus from './ReturnStatus'
 
 interface IProps {
   loan: ILoan
@@ -28,13 +30,15 @@ const RowCompactLoan = ({
     <Tr>
       <Td>{loan.branch?.name}</Td>
       <Td>{loan.amount}</Td>
-      <Td>{dayjs(loan.loanDate).format('DD/MM/YYYY')}</Td>
-      <Td>{`${loan.discount}%`}</Td>
       <Td>
         {salePrice(Number(coverPrice), loan.discount).toLocaleString('pt-BR', {
           style: 'currency',
           currency: 'BRL',
         })}
+      </Td>
+      <Td>{`${loan.discount}%`}</Td>
+      <Td>
+        <ReturnStatus returnDate={dayjs(loan.returnDate)} />
       </Td>
       <Td>
         <NewIncoming

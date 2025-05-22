@@ -57,15 +57,12 @@ function DebouncedInput({
   }, [value])
 
   return (
-    <div className="flex justify-end">
-      <div className="flex items-center mb-4">
-        <span className="mr-2">Pesquisar:</span>
-        <Input
-          {...props}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
-      </div>
+    <div className="w-full">
+      <Input
+        {...props}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+      />
     </div>
   )
 }
@@ -161,7 +158,7 @@ const BookList = () => {
 
   return (
     <>
-      <div className="flex justify-end">
+      <div className="flex mb-4">
         <DebouncedInput
           value={globalFilter ?? ''}
           className="p-2 font-lg shadow border border-block"

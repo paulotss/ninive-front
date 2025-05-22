@@ -1,50 +1,40 @@
-import { ChangeEvent, useState } from 'react'
+import { useState } from 'react'
 import { Button, Dialog, FormContainer, FormItem, Input } from '../ui'
-import { IExpenseCreate } from '@/services/expenseService'
-import { discountPrice } from '@/utils/amount'
+import { IExpenseCreate } from '../../services/expenseService'
+import { discountPrice } from '../../utils/amount'
 import { Field, Form, Formik } from 'formik'
 import * as Yup from 'yup'
-import { IBookstore } from '@/services/bookstoreService'
+import { IBookstore } from '../../services/bookstoreService'
 
 interface IProps {
   bookstore: IBookstore
-  payload: IExpenseCreate
-  storeName: string
-  bookTitle: string
-  bookstoreId: number
   coverPrice: number | string
-  tax: number
-  discount: number
-  handleSubmitExpense(bookstoreId, values: IExpenseCreate): void
+  handleSubmitExpense(
+    bookstoreId: number,
+    newBookAmount: number,
+    values: IExpenseCreate,
+  ): void
 }
 
-const NewExpense = ({
-  bookstore,
-  payload,
-  storeName,
-  bookTitle,
-  bookstoreId,
-  coverPrice,
-  tax,
-  discount,
-  handleSubmitExpense,
-}: IProps) => {
+const NewExpense = ({ bookstore, coverPrice, handleSubmitExpense }: IProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
-  const [amount, setAmount] = useState<number>(0)
-  const [totalValue, setTotalValue] = useState<number>(0)
 
-  async function handleSubmit() {
-    handleSubmitExpense(bookstoreId, {
-      ...payload,
-      amount,
-      totalValue: totalValue * amount,
-    })
+  async function handleSubmit(values: {
+    amount: number
+    discount: number
+    tax: number
+  }) {
+    const newExpense: IExpenseCreate = {
+      bookId: bookstore.bookId,
+      storeId: bookstore.storeId,
+      amount: values.amount,
+      totalValue:
+        discountPrice(Number(coverPrice), values.tax, values.discount) *
+        values.amount,
+    }
+    const newBookAmount = bookstore.amount - values.amount
+    handleSubmitExpense(bookstore.id, newBookAmount, newExpense)
     setIsDialogOpen(false)
-  }
-
-  function handleAmountInput({ target }: ChangeEvent<HTMLInputElement>) {
-    setAmount(Number(target.value))
-    setTotalValue(discountPrice(Number(coverPrice), tax, discount))
   }
 
   return (
@@ -64,10 +54,10 @@ const NewExpense = ({
           setIsDialogOpen(false)
         }}
       >
-        <h3>Faturar | {bookTitle}</h3>
+        <h3>Faturar | {bookstore.book.title}</h3>
         <div className="mt-5 mb-5">
           <p className="mb-3">
-            Editora: <span className="font-bold">{storeName}</span>
+            Editora: <span className="font-bold">{bookstore.store.name}</span>
           </p>
           <Formik
             initialValues={{
@@ -78,7 +68,7 @@ const NewExpense = ({
             validationSchema={Yup.object().shape({
               amount: Yup.number()
                 .min(0, 'Mínimo: 0')
-                .max(bookstore.amount)
+                .max(bookstore.amount, 'Quantidade superior ao estoque')
                 .required('Obrigatório')
                 .typeError('Valor inválido'),
               discount: Yup.number()
@@ -152,7 +142,7 @@ const NewExpense = ({
                           })}
                         </span>
                       </p>
-                      <p className="text-right">
+                      <p className="text-right mb-3">
                         Valor total
                         <br />
                         <span className="text-red-600 font-bold text-xl">
@@ -168,6 +158,13 @@ const NewExpense = ({
                           })}
                         </span>
                       </p>
+                      <p className="text-right">
+                        Devolução
+                        <br />
+                        <span className="text-red-400 font-bold text-xl">
+                          {bookstore.amount - values.amount} und.
+                        </span>
+                      </p>
                     </div>
                   </div>
                   <FormItem>
@@ -176,6 +173,7 @@ const NewExpense = ({
                       variant="solid"
                       color="red-500"
                       className="mr-2"
+                      disabled={bookstore.amount - values.amount < 0}
                     >
                       Faturar
                     </Button>

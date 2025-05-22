@@ -27,6 +27,7 @@ import { ILoanCreate, loanCreate, loanUpdate } from '@/services/loanService'
 import { expenseCreate, IExpenseCreate } from '@/services/expenseService'
 import NewLoan from '@/components/custom/NewLoan'
 import { IIncomingCreate, incomingCreate } from '@/services/incomingService'
+import NewAquisition from '@/components/custom/NewAquisition'
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('Obrigatório'),
@@ -115,6 +116,7 @@ const BookView = () => {
 
   async function handleSubmitExpense(
     bookstoreId: number,
+    newBookAmount: number,
     values: IExpenseCreate,
   ) {
     try {
@@ -123,7 +125,7 @@ const BookView = () => {
         closed: true,
         closedDate: new Date(),
       })
-      await bookUpdate(Number(id), { amount: book.amount - values.amount })
+      await bookUpdate(Number(id), { amount: book.amount - newBookAmount })
       const { data } = await bookGetOne(Number(id))
       setBook(data)
     } catch (e) {
@@ -146,6 +148,17 @@ const BookView = () => {
       await bookUpdate(Number(id), {
         amount: book.amount + returningAmount,
       })
+      const { data } = await bookGetOne(Number(id))
+      setBook(data)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  async function handleSubmitAquisition(values: IExpenseCreate) {
+    try {
+      await expenseCreate({ ...values, totalValue: Number(values.totalValue) })
+      await bookUpdate(Number(id), { amount: book.amount + values.amount })
       const { data } = await bookGetOne(Number(id))
       setBook(data)
     } catch (e) {
@@ -178,6 +191,80 @@ const BookView = () => {
     <>
       {!isLoading ? (
         <>
+          <h1>{book?.title}</h1>
+          <h6 className="mb-5">ISBN: {book?.isbn}</h6>
+          <div className="flex justify-between items-center mb-5">
+            <div className="p-2 border-2 border-dotted rounded-md w-full flex">
+              <div className="text-center p-3 bg-gray-100 mr-3">
+                <p>Estoque</p>
+                <p className="font-bold text-4xl">{book?.amount}</p>
+              </div>
+              <div className="text-center p-3 bg-gray-100 mr-3">
+                <p>Consignados</p>
+                <p className="font-bold text-green-500 text-4xl">
+                  {book && getBookstoreAmount(book?.stores)}
+                </p>
+              </div>
+              <div className="text-center p-3 bg-gray-100 mr-3">
+                <p>Em vendas</p>
+                <p className="font-bold text-red-500 text-4xl">
+                  {book && getLoanAmount(getLoansFilter(false))}
+                </p>
+              </div>
+            </div>
+            <div className="ml-3">
+              <NewBookstore
+                bookId={Number(id)}
+                coverPrice={Number(book?.coverPrice)}
+                handleSubmitBookstore={handleSubmitBookstore}
+              />
+              <br />
+              <NewLoan
+                bookId={book?.id}
+                coverPrice={book?.coverPrice}
+                maxAmount={book?.amount}
+                handleSubmitLoan={handleSubmitLoan}
+              />
+              <br />
+              <NewAquisition
+                bookId={Number(id)}
+                handleSubmitAquisition={handleSubmitAquisition}
+              />
+            </div>
+          </div>
+          <Tabs defaultValue="tab1" className="mb-5">
+            <TabList>
+              <TabNav value="tab1" icon={<BsFileArrowDownFill />}>
+                Consignações
+              </TabNav>
+              <TabNav value="tab2" icon={<BsFileArrowUpFill />}>
+                Em vendas
+              </TabNav>
+            </TabList>
+            <TabContent value="tab1">
+              {book?.stores?.length > 0 ? (
+                <TableCompactBookstore
+                  book={book}
+                  handleSubmitLoan={handleSubmitLoan}
+                  handleSubmitExpense={handleSubmitExpense}
+                />
+              ) : (
+                <p className="p-3 italic text-center">Nada por aqui.</p>
+              )}
+            </TabContent>
+            <TabContent value="tab2">
+              {getLoansFilter(false)?.length > 0 ? (
+                <TableCompactLoan
+                  loans={getLoansFilter(false)}
+                  bookTitle={book?.title}
+                  coverPrice={book?.coverPrice}
+                  handleSubmitIncoming={handleSubmitIncoming}
+                />
+              ) : (
+                <p className="p-3 italic text-center">Nada por aqui.</p>
+              )}
+            </TabContent>
+          </Tabs>
           <Formik
             initialValues={{
               title: book?.title,
@@ -381,64 +468,6 @@ const BookView = () => {
               </Form>
             )}
           </Formik>
-          <div className="flex">
-            <div className="p-2 mb-5 border-2 border-dotted rounded-md">
-              <p>
-                Estoque: <span className="font-bold">{book?.amount}</span>
-              </p>
-              <p>
-                Consignados:{' '}
-                <span className="font-bold text-green-500">
-                  {book && getBookstoreAmount(book?.stores)}
-                </span>
-              </p>
-              <p>
-                Em vendas:{' '}
-                <span className="font-bold text-red-500">
-                  {book && getLoanAmount(getLoansFilter(false))}
-                </span>
-              </p>
-            </div>
-            <div className="p-3">
-              <NewBookstore
-                bookId={Number(id)}
-                coverPrice={Number(book?.coverPrice)}
-                handleSubmitBookstore={handleSubmitBookstore}
-              />
-              <br />
-              <NewLoan
-                bookId={book?.id}
-                coverPrice={book?.coverPrice}
-                maxAmount={book?.amount - getLoanAmount(getLoansFilter(false))}
-                handleSubmitLoan={handleSubmitLoan}
-              />
-            </div>
-          </div>
-          <Tabs defaultValue="tab1">
-            <TabList>
-              <TabNav value="tab1" icon={<BsFileArrowUpFill />}>
-                Em vendas
-              </TabNav>
-              <TabNav value="tab2" icon={<BsFileArrowDownFill />}>
-                Consignados
-              </TabNav>
-            </TabList>
-            <TabContent value="tab1">
-              <TableCompactLoan
-                loans={getLoansFilter(false)}
-                bookTitle={book?.title}
-                coverPrice={book?.coverPrice}
-                handleSubmitIncoming={handleSubmitIncoming}
-              />
-            </TabContent>
-            <TabContent value="tab2">
-              <TableCompactBookstore
-                book={book}
-                handleSubmitLoan={handleSubmitLoan}
-                handleSubmitExpense={handleSubmitExpense}
-              />
-            </TabContent>
-          </Tabs>
         </>
       ) : (
         <Spinner />

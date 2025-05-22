@@ -25,8 +25,14 @@ export const protectedRoutes = [
     authority: ['admin'],
   },
   {
+    key: 'loanView',
+    path: '/emprestimo/:id',
+    component: lazy(() => import('@/views/loan/LoanView')),
+    authority: ['admin'],
+  },
+  {
     key: 'bookstoreView',
-    path: '/estoque/:id',
+    path: '/consignado/:id',
     component: lazy(() => import('@/views/bookstore/BookstoreView')),
     authority: ['admin'],
   },

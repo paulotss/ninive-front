@@ -30,6 +30,7 @@ export interface ILoanUpdate {
   bookId?: number
   branchId?: number
   amount?: number
+  discount?: number | string
   salesAmount?: number
   returnDate?: Date
   closed?: boolean
