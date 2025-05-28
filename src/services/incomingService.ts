@@ -1,5 +1,6 @@
 import dayjs from 'dayjs'
 import ApiService from './ApiService'
+import { IBook } from './bookService'
 
 export interface IIncoming {
   id?: number
@@ -8,6 +9,7 @@ export interface IIncoming {
   amount: number
   createdAt?: Date | string
   totalValue: string | number
+  book?: IBook
 }
 
 export interface IIncomingCreate {

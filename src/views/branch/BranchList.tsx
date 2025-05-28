@@ -57,15 +57,12 @@ function DebouncedInput({
   }, [value])
 
   return (
-    <div className="flex justify-end">
-      <div className="flex items-center mb-4">
-        <span className="mr-2">Search:</span>
-        <Input
-          {...props}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
-      </div>
+    <div className="w-full">
+      <Input
+        {...props}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+      />
     </div>
   )
 }
@@ -143,12 +140,12 @@ const BranchList = () => {
 
   return (
     <>
-      <h3>Pontos de venda</h3>
-      <div className="flex justify-end">
+      <h3 className="mb-3">Pontos de venda</h3>
+      <div className="flex justify-end mb-5">
         <DebouncedInput
           value={globalFilter ?? ''}
           className="p-2 font-lg shadow border border-block"
-          placeholder="Search all columns..."
+          placeholder="Buscar"
           onChange={(value) => setGlobalFilter(String(value))}
         />
         <Button
@@ -193,6 +190,7 @@ const BranchList = () => {
             return (
               <Tr
                 key={row.id}
+                className="cursor-pointer"
                 onClick={() => navigate(`/loja/${row.original.id}`)}
               >
                 {row.getVisibleCells().map((cell) => {

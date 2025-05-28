@@ -1,16 +1,16 @@
 import { Button, Input, Radio } from '@/components/ui'
-import {
-  ILoan,
-  loanGetByBookISBN,
-  loanGetByBookTitle,
-  loanUpdate,
-} from '@/services/loanService'
 import { ChangeEvent, FormEvent, useState } from 'react'
 import { RootState } from '@/store'
 import { useSelector } from 'react-redux'
 import Table from '@/components/ui/Table'
 import Cart, { IItem } from '@/components/custom/Cart'
 import { IIncomingCreate, incomingCreateMany } from '@/services/incomingService'
+import {
+  bookGetByBookISBN,
+  bookGetByBookTitle,
+  bookUpdate,
+  IBook,
+} from '@/services/bookService'
 
 const { Tr, Th, Td, THead, TBody } = Table
 
@@ -22,7 +22,7 @@ interface ISearch {
 const Cashier = () => {
   const user = useSelector((state: RootState) => state.auth.user)
   const [search, setSearch] = useState<ISearch>({ term: '', method: 'isbn' })
-  const [loans, setLoans] = useState<ILoan[]>([])
+  const [books, setBooks] = useState<IBook[]>([])
   const [items, setItems] = useState<IItem[]>([])
 
   function handleChangeSearch({ target }: ChangeEvent<HTMLInputElement>) {
@@ -30,8 +30,8 @@ const Cashier = () => {
   }
 
   function handleClickAddItem(id: number) {
-    const loan = loans.find((l) => l.id === id)
-    if (loan.amount - loan.salesAmount > 0) {
+    const book = books.find((l) => l.id === id)
+    if (book.amount > 0) {
       const isExist = items.find((i) => i.id === id)
       if (isExist) {
         const newItems = items.filter((i) => i.id !== isExist.id)
@@ -41,67 +41,60 @@ const Cashier = () => {
       } else {
         const newItem: IItem = {
           id: id,
-          title: loan.bookstore.book.title,
+          title: book.title,
           amount: 1,
-          totalAmount: loan.salesAmount,
-          price: Number(loan.bookstore.coverPrice),
+          price: Number(book.coverPrice),
         }
         setItems([...items, newItem])
       }
-      loan.salesAmount = loan.salesAmount + 1
-      const newLoans = loans.filter((l) => l.id !== loan.id)
-      setLoans([...newLoans, loan])
+      book.amount = book.amount - 1
+      const newBook = books.filter((b) => b.id !== book.id)
+      setBooks([...newBook, book])
     }
   }
 
   async function handleClickButtonSearch(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     try {
-      let loanList: ILoan[] = []
+      let bookList: IBook[] = []
       if (search.method === 'title') {
-        const { data } = await loanGetByBookTitle(
-          search.term,
-          user.id.toString(),
-        )
-        loanList = data
+        const { data } = await bookGetByBookTitle(search.term)
+        bookList = data
       } else {
-        const { data } = await loanGetByBookISBN(
-          search.term,
-          user.id.toString(),
-        )
-        loanList = data
+        const { data } = await bookGetByBookISBN(search.term)
+        bookList = data
       }
-      setLoans(loanList)
+      setBooks(bookList)
     } catch (error) {
       console.log(error)
     }
   }
 
   function removeItem(id: number) {
-    const loan = loans.find((l) => l.id === id)
-    loan.salesAmount = loan.salesAmount - items.find((i) => i.id === id).amount
-    const newLoans = loans.filter((l) => l.id !== id)
+    const book = books.find((l) => l.id === id)
+    book.amount = book.amount + items.find((i) => i.id === id).amount
+    const newBooks = books.filter((l) => l.id !== id)
     const newItems = items.filter((i) => i.id !== id)
-    setLoans([...newLoans, loan])
+    setBooks([...newBooks, book])
     setItems(newItems)
   }
 
   async function handleSubmit() {
     try {
       const incomings: IIncomingCreate[] = items.map((i) => ({
-        bookId: loans.find((l) => l.id === i.id).bookstore.bookId,
-        branchId: loans.find((l) => l.id === i.id).branchId,
+        bookId: books.find((b) => b.id === i.id).id,
+        branchId: Number(user.id),
         amount: i.amount,
         totalValue: i.amount * i.price,
       }))
       await incomingCreateMany(incomings)
       items.forEach(async (i) => {
-        await loanUpdate(i.id, {
-          salesAmount: i.totalAmount + i.amount,
+        await bookUpdate(i.id, {
+          amount: i.amount,
         })
       })
       setSearch({ term: '', method: 'isbn' })
-      setLoans([])
+      setBooks([])
       setItems([])
     } catch (error) {
       console.log(error)
@@ -136,7 +129,7 @@ const Cashier = () => {
           <Button type="submit">Buscar</Button>
         </form>
       </div>
-      {loans.length > 0 ? (
+      {books.length > 0 ? (
         <Table compact className="mt-4">
           <THead>
             <Tr>
@@ -147,12 +140,12 @@ const Cashier = () => {
             </Tr>
           </THead>
           <TBody>
-            {loans?.map((l) => (
-              <Tr key={l.id}>
-                <Td>{l.bookstore.book.title}</Td>
-                <Td>{l.amount - l.salesAmount}</Td>
+            {books?.map((b) => (
+              <Tr key={b.id}>
+                <Td>{b.title}</Td>
+                <Td>{b.amount}</Td>
                 <Td>
-                  {Number(l.bookstore.coverPrice).toLocaleString('pt-BR', {
+                  {Number(b.coverPrice).toLocaleString('pt-BR', {
                     style: 'currency',
                     currency: 'BRL',
                   })}
@@ -161,7 +154,7 @@ const Cashier = () => {
                   <Button
                     type="button"
                     size="xs"
-                    onClick={() => handleClickAddItem(l.id)}
+                    onClick={() => handleClickAddItem(b.id)}
                   >
                     Adicionar
                   </Button>
@@ -177,7 +170,10 @@ const Cashier = () => {
         <Cart
           items={items}
           removeItem={removeItem}
-          cleanItems={() => setItems([])}
+          cleanItems={() => {
+            setItems([])
+            setBooks([])
+          }}
           submit={handleSubmit}
         />
       </div>

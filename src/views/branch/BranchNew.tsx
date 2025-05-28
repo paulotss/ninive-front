@@ -1,4 +1,5 @@
-import { Button, Checkbox, FormContainer, FormItem } from '@/components/ui'
+import BackButton from '@/components/custom/BackButton'
+import { Button, FormContainer, FormItem } from '@/components/ui'
 import Input from '@/components/ui/Input'
 import { branchCreate, IBranchCreate } from '@/services/branchService'
 import { Field, Form, Formik } from 'formik'
@@ -8,15 +9,10 @@ import * as Yup from 'yup'
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Obrigatório'),
-  email: Yup.string().email('Email inválido').required('Obrigatório'),
-  password: Yup.string().required('Obrigatório'),
 })
 
 const initialValues: IBranchCreate = {
   name: '',
-  email: '',
-  password: '',
-  admin: false,
 }
 
 const BranchNew = () => {
@@ -31,7 +27,7 @@ const BranchNew = () => {
   async function handleSubmit(values: IBranchCreate) {
     try {
       await branchCreate(values)
-      navigate('/lojas')
+      navigate(-1)
     } catch (e) {
       console.log(e)
     }
@@ -39,6 +35,7 @@ const BranchNew = () => {
 
   return (
     <>
+      <BackButton />
       <h3 className="mb-5">Novo ponto de venda</h3>
       <Formik
         initialValues={initialValues}
@@ -61,46 +58,11 @@ const BranchNew = () => {
                   component={Input}
                 />
               </FormItem>
-              <FormItem
-                label="Email"
-                invalid={touched.email && errors.email ? true : false}
-                errorMessage={errors.email?.toString()}
-              >
-                <Field
-                  type="text"
-                  autoComplete="off"
-                  name="email"
-                  placeholder="Email"
-                  component={Input}
-                />
+              <FormItem>
+                <Button type="submit" variant="solid">
+                  Cadastrar
+                </Button>
               </FormItem>
-              <FormItem
-                label="Senha"
-                invalid={touched.password && errors.password ? true : false}
-                errorMessage={errors.password?.toString()}
-              >
-                <Field
-                  type="password"
-                  autoComplete="off"
-                  name="password"
-                  placeholder="Senha"
-                  component={Input}
-                />
-              </FormItem>
-              <FormItem
-                label="Administrador"
-                invalid={touched.admin && errors.admin ? true : false}
-                errorMessage={errors.admin?.toString()}
-              >
-                <Field
-                  type="checkbox"
-                  autoComplete="off"
-                  name="admin"
-                  placeholder="Administrador"
-                  component={Checkbox}
-                />
-              </FormItem>
-              <Button type="submit">Cadastrar</Button>
             </FormContainer>
           </Form>
         )}

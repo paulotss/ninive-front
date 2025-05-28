@@ -1,10 +1,8 @@
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
-import Checkbox from '@/components/ui/Checkbox'
 import { FormItem, FormContainer } from '@/components/ui/Form'
 import Alert from '@/components/ui/Alert'
 import PasswordInput from '@/components/shared/PasswordInput'
-import ActionLink from '@/components/shared/ActionLink'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import useAuth from '@/utils/hooks/useAuth'
 import { Field, Form, Formik } from 'formik'
@@ -13,29 +11,20 @@ import type { CommonProps } from '@/@types/common'
 
 interface SignInFormProps extends CommonProps {
   disableSubmit?: boolean
-  forgotPasswordUrl?: string
-  signUpUrl?: string
 }
 
 type SignInFormSchema = {
   email: string
   password: string
-  rememberMe: boolean
 }
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email('Email inválido').required('Obrigatório'),
   password: Yup.string().required('Obrigatório'),
-  rememberMe: Yup.bool(),
 })
 
 const SignInForm = (props: SignInFormProps) => {
-  const {
-    disableSubmit = false,
-    className,
-    forgotPasswordUrl = '/forgot-password',
-    signUpUrl = '/sign-up',
-  } = props
+  const { disableSubmit = false, className } = props
 
   const [message, setMessage] = useTimeOutMessage()
 
@@ -52,7 +41,8 @@ const SignInForm = (props: SignInFormProps) => {
     console.log(result)
 
     if (result?.status === 'failed') {
-      setMessage(result.message)
+      setMessage('Verifique os dados de login')
+      console.log(result.message)
     }
 
     setSubmitting(false)
@@ -69,7 +59,6 @@ const SignInForm = (props: SignInFormProps) => {
         initialValues={{
           email: '',
           password: '',
-          rememberMe: true,
         }}
         validationSchema={validationSchema}
         onSubmit={(values, { setSubmitting }) => {
@@ -108,24 +97,14 @@ const SignInForm = (props: SignInFormProps) => {
                   component={PasswordInput}
                 />
               </FormItem>
-              <div className="flex justify-between mb-6">
-                <Field className="mb-0" name="rememberMe" component={Checkbox}>
-                  Remember Me
-                </Field>
-                <ActionLink to={forgotPasswordUrl}>Forgot Password?</ActionLink>
-              </div>
               <Button
                 block
                 loading={isSubmitting}
                 variant="solid"
                 type="submit"
               >
-                {isSubmitting ? 'Signing in...' : 'Sign In'}
+                {isSubmitting ? 'Entrando...' : 'Entrar'}
               </Button>
-              <div className="mt-4 text-center">
-                <span>{`Don't have an account yet?`} </span>
-                <ActionLink to={signUpUrl}>Sign up</ActionLink>
-              </div>
             </FormContainer>
           </Form>
         )}

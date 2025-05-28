@@ -12,7 +12,7 @@ const navigationConfig: NavigationTree[] = [
     translateKey: 'nav.home',
     icon: 'home',
     type: NAV_ITEM_TYPE_ITEM,
-    authority: ['branch'],
+    authority: ['admin', 'user'],
     subMenu: [],
   },
   {
@@ -22,7 +22,7 @@ const navigationConfig: NavigationTree[] = [
     translateKey: 'nav.cashier',
     icon: 'groupSingleMenu',
     type: NAV_ITEM_TYPE_ITEM,
-    authority: ['branch'],
+    authority: ['admin', 'user'],
     subMenu: [],
   },
   {
@@ -32,7 +32,7 @@ const navigationConfig: NavigationTree[] = [
     translateKey: 'nav.livrariaMenu',
     icon: 'collapseMenu',
     type: NAV_ITEM_TYPE_COLLAPSE,
-    authority: ['admin'],
+    authority: ['admin', 'user'],
     subMenu: [
       {
         key: 'bookList',
@@ -41,7 +41,7 @@ const navigationConfig: NavigationTree[] = [
         translateKey: 'nav.bookList',
         icon: 'groupSingleMenu',
         type: NAV_ITEM_TYPE_ITEM,
-        authority: ['admin'],
+        authority: ['admin', 'user'],
         subMenu: [],
       },
       {
@@ -51,7 +51,7 @@ const navigationConfig: NavigationTree[] = [
         translateKey: 'nav.bookstoreList',
         icon: 'groupSingleMenu',
         type: NAV_ITEM_TYPE_ITEM,
-        authority: ['admin'],
+        authority: ['admin', 'user'],
         subMenu: [],
       },
       {
@@ -61,7 +61,7 @@ const navigationConfig: NavigationTree[] = [
         translateKey: 'nav.loanList',
         icon: 'groupSingleMenu',
         type: NAV_ITEM_TYPE_ITEM,
-        authority: ['admin'],
+        authority: ['admin', 'user'],
         subMenu: [],
       },
     ],
@@ -73,7 +73,7 @@ const navigationConfig: NavigationTree[] = [
     translateKey: 'nav.relatoriosMenu',
     icon: 'collapseMenu',
     type: NAV_ITEM_TYPE_COLLAPSE,
-    authority: ['admin'],
+    authority: ['admin', 'user'],
     subMenu: [
       {
         key: 'incomingList',
@@ -82,7 +82,7 @@ const navigationConfig: NavigationTree[] = [
         translateKey: 'nav.incomingList',
         icon: 'groupSingleMenu',
         type: NAV_ITEM_TYPE_ITEM,
-        authority: ['admin'],
+        authority: ['admin', 'user'],
         subMenu: [],
       },
       {
@@ -92,7 +92,7 @@ const navigationConfig: NavigationTree[] = [
         translateKey: 'nav.expenseList',
         icon: 'groupSingleMenu',
         type: NAV_ITEM_TYPE_COLLAPSE,
-        authority: ['admin'],
+        authority: ['admin', 'user'],
         subMenu: [],
       },
     ],
@@ -104,7 +104,7 @@ const navigationConfig: NavigationTree[] = [
     translateKey: 'nav.storeList',
     icon: '',
     type: NAV_ITEM_TYPE_ITEM,
-    authority: ['admin'],
+    authority: ['admin', 'user'],
     subMenu: [],
   },
   {
@@ -114,7 +114,7 @@ const navigationConfig: NavigationTree[] = [
     translateKey: 'nav.branchList',
     icon: '',
     type: NAV_ITEM_TYPE_ITEM,
-    authority: ['admin'],
+    authority: ['admin', 'user'],
     subMenu: [],
   },
   {
@@ -124,7 +124,7 @@ const navigationConfig: NavigationTree[] = [
     translateKey: 'nav.publishierList',
     icon: '',
     type: NAV_ITEM_TYPE_ITEM,
-    authority: ['admin'],
+    authority: ['admin', 'user'],
     subMenu: [],
   },
 ]

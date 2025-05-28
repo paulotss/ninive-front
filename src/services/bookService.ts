@@ -1,5 +1,4 @@
 import ApiService from './ApiService'
-import { IAquisition } from './acquisitionService'
 import { IBookstore } from './bookstoreService'
 import { IExpense } from './expenseService'
 import { IIncoming } from './incomingService'
@@ -20,7 +19,6 @@ export interface IBook {
   publishierId: number
   publishier?: IPublisher
   stores?: IBookstore[]
-  acquisitions: IAquisition[]
   loans: ILoan[]
   expenses?: IExpense[]
   incomings?: IIncoming[]
@@ -79,5 +77,19 @@ export async function bookUpdate(id: number, data: IBookUpdate) {
     url: `/book/${id}`,
     method: 'patch',
     data,
+  })
+}
+
+export async function bookGetByBookTitle(title: string) {
+  return ApiService.fetchData<IBook[]>({
+    url: `/book/title/${title}`,
+    method: 'get',
+  })
+}
+
+export async function bookGetByBookISBN(isbn: string) {
+  return ApiService.fetchData<IBook[]>({
+    url: `/book/isbn/${isbn}`,
+    method: 'get',
   })
 }

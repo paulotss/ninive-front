@@ -1,12 +1,13 @@
+import { useNavigate } from 'react-router-dom'
 import { IBookstore } from '@/services/bookstoreService'
-import { Table } from '../ui'
+import { Button, Table } from '../ui'
 import { ILoanCreate } from '@/services/loanService'
 import NewExpense from './NewExpense'
 import { IExpenseCreate } from '@/services/expenseService'
 import { discountPrice } from '@/utils/amount'
-import { MdWatchLater } from 'react-icons/md'
 import dayjs from 'dayjs'
 import ReturnStatus from './ReturnStatus'
+import { MdEdit } from 'react-icons/md'
 
 const { Tr, Td } = Table
 
@@ -26,6 +27,8 @@ const RowCompactBookstore = ({
   coverPrice,
   handleSubmitExpense,
 }: IProps) => {
+  const navigate = useNavigate()
+
   return (
     <Tr>
       <Td>{bookstore.store.name}</Td>
@@ -51,6 +54,14 @@ const RowCompactBookstore = ({
             coverPrice={coverPrice}
             bookstore={bookstore}
             handleSubmitExpense={handleSubmitExpense}
+          />
+          <Button
+            shape="circle"
+            variant="twoTone"
+            size="xs"
+            icon={<MdEdit />}
+            className="ml-2"
+            onClick={() => navigate(`/consignado/${bookstore.id}`)}
           />
         </div>
       </Td>

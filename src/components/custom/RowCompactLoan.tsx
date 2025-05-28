@@ -1,11 +1,12 @@
-import { Table } from '../ui'
+import { useNavigate } from 'react-router-dom'
+import { Table, Button } from '../ui'
 import { ILoan } from '@/services/loanService'
 import NewIncoming from './NewIncoming'
 import dayjs from 'dayjs'
 import { salePrice } from '@/utils/amount'
 import { IIncomingCreate } from '@/services/incomingService'
-import { MdWatchLater } from 'react-icons/md'
 import ReturnStatus from './ReturnStatus'
+import { MdEdit } from 'react-icons/md'
 
 interface IProps {
   loan: ILoan
@@ -26,6 +27,8 @@ const RowCompactLoan = ({
   coverPrice,
   handleSubmitIncoming,
 }: IProps) => {
+  const navigate = useNavigate()
+
   return (
     <Tr>
       <Td>{loan.branch?.name}</Td>
@@ -41,16 +44,26 @@ const RowCompactLoan = ({
         <ReturnStatus returnDate={dayjs(loan.returnDate)} />
       </Td>
       <Td>
-        <NewIncoming
-          bookId={loan.bookId}
-          branchId={loan.branchId}
-          bookTitle={bookTitle}
-          branchName={loan.branch?.name}
-          amount={loan.amount}
-          salePrice={salePrice(Number(coverPrice), loan.discount)}
-          loanId={loan.id}
-          handleSubmitIncoming={handleSubmitIncoming}
-        />
+        <div className="flex items-center">
+          <NewIncoming
+            bookId={loan.bookId}
+            branchId={loan.branchId}
+            bookTitle={bookTitle}
+            branchName={loan.branch?.name}
+            amount={loan.amount}
+            salePrice={salePrice(Number(coverPrice), loan.discount)}
+            loanId={loan.id}
+            handleSubmitIncoming={handleSubmitIncoming}
+          />
+          <Button
+            shape="circle"
+            variant="twoTone"
+            size="xs"
+            icon={<MdEdit />}
+            className="ml-2"
+            onClick={() => navigate(`/emprestimo/${loan.id}`)}
+          />
+        </div>
       </Td>
     </Tr>
   )

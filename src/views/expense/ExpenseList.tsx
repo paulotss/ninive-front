@@ -58,14 +58,11 @@ function DebouncedInput({
 
   return (
     <div className="flex justify-end">
-      <div className="flex items-center mb-4">
-        <span className="mr-2">Search:</span>
-        <Input
-          {...props}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
-      </div>
+      <Input
+        {...props}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+      />
     </div>
   )
 }
@@ -97,9 +94,9 @@ const ExpenseList = () => {
       { header: 'Título', accessorKey: 'book.title' },
       { header: 'ISBN', accessorKey: 'book.isbn' },
       { header: 'Loja', accessorKey: 'store.name' },
-      { header: 'Quantidade', accessorKey: 'amount' },
+      { header: 'Quant.', accessorKey: 'amount' },
       {
-        header: 'Despesa',
+        header: 'Valor',
         accessorKey: 'totalValue',
         cell: (props) => {
           return Number(props.row.original.totalValue).toLocaleString('pt-BR', {
@@ -113,7 +110,7 @@ const ExpenseList = () => {
         accessorKey: 'createdAt',
         cell: (props) => {
           const df = new Date(props.row.original.createdAt)
-          return `${df.getDay()}/${df.getMonth()}/${df.getFullYear()}`
+          return dayjs(df).format('DD/MM/YYYY')
         },
       },
     ],
@@ -161,7 +158,7 @@ const ExpenseList = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center m-5">
+      <div className="flex justify-between items-end mb-10">
         <p>
           Total:{' '}
           <span className="font-bold text-red-600 text-lg">
@@ -170,8 +167,9 @@ const ExpenseList = () => {
               .toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </span>
         </p>
-        <div className="flex justify-start w-64">
-          <div>
+        <div className="flex justify-center w-1/3">
+          <div className="mr-3">
+            <p className="text-[10px] italic">Início</p>
             <DatePicker
               placeholder="Início"
               defaultValue={period.startDate}
@@ -179,9 +177,9 @@ const ExpenseList = () => {
                 setPeriod({ ...period, startDate: date })
               }}
             />
-            <p className="text-[10px] italic">Início</p>
           </div>
           <div>
+            <p className="text-[10px] italic">Fim</p>
             <DatePicker
               placeholder="Fim"
               defaultValue={period.endDate}
@@ -189,13 +187,12 @@ const ExpenseList = () => {
                 setPeriod({ ...period, endDate: date })
               }}
             />
-            <p className="text-[10px] italic">Fim</p>
           </div>
         </div>
         <DebouncedInput
           value={globalFilter ?? ''}
           className="font-lg shadow border border-block"
-          placeholder="Search all columns..."
+          placeholder="Buscar"
           onChange={(value) => setGlobalFilter(String(value))}
         />
       </div>

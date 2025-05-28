@@ -16,20 +16,16 @@ import {
 } from '@/services/branchService'
 import { ILoan } from '@/services/loanService'
 import { Field, Form, Formik } from 'formik'
-import {
-  Button,
-  Checkbox,
-  FormContainer,
-  FormItem,
-  Input,
-} from '@/components/ui'
+import { Button, FormContainer, FormItem, Input } from '@/components/ui'
 import * as Yup from 'yup'
+import dayjs from 'dayjs'
+import ReturnStatus from '@/components/custom/ReturnStatus'
+import BackButton from '@/components/custom/BackButton'
 
 const { Tr, Th, Td, THead, TBody, Sorter } = Table
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Obrigatório'),
-  email: Yup.string().email('Email inválido').required('Obrigatório'),
 })
 
 const BranchView = () => {
@@ -42,10 +38,18 @@ const BranchView = () => {
   const table = useReactTable({
     data: loans,
     columns: [
-      { header: 'Título', accessorKey: 'bookstore.book.title' },
-      { header: 'ISBN', accessorKey: 'bookstore.book.isbn' },
+      { header: 'Título', accessorKey: 'book.title' },
+      { header: 'ISBN', accessorKey: 'book.isbn' },
       { header: 'Quant.', accessorKey: 'amount' },
-      { header: 'Vendas', accessorKey: 'salesAmount' },
+      {
+        header: 'Devolução',
+        accessorKey: 'returnDate',
+        cell: (props) => {
+          return (
+            <ReturnStatus returnDate={dayjs(props.row.original.returnDate)} />
+          )
+        },
+      },
     ],
     state: {
       sorting,
@@ -57,8 +61,7 @@ const BranchView = () => {
 
   async function handleSubmit(values: IBranchUpdate) {
     try {
-      const { data } = await branchUpdate(Number(id), values)
-      setBranch(data)
+      await branchUpdate(Number(id), values)
       setEditing(false)
     } catch (error) {
       console.log(error)
@@ -82,12 +85,11 @@ const BranchView = () => {
     <>
       {branch && (
         <>
+          <BackButton />
           <h3 className="mb-5">Ponto de venda | {branch?.name}</h3>
           <Formik
             initialValues={{
               name: branch?.name,
-              email: branch?.email,
-              admin: branch?.admin,
             }}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
@@ -109,44 +111,14 @@ const BranchView = () => {
                       disabled={!isEditing}
                     />
                   </FormItem>
-                  <FormItem
-                    label="Email"
-                    invalid={touched.email && errors.email ? true : false}
-                    errorMessage={errors.email?.toString()}
-                  >
-                    <Field
-                      type="text"
-                      autoComplete="off"
-                      name="email"
-                      placeholder="Email"
-                      component={Input}
-                      disabled={!isEditing}
-                    />
-                  </FormItem>
-                  <FormItem
-                    label="Administrador"
-                    invalid={touched.admin && errors.admin ? true : false}
-                    errorMessage={errors.admin?.toString()}
-                  >
-                    <Field
-                      type="checkbox"
-                      autoComplete="off"
-                      name="admin"
-                      placeholder="Administrador"
-                      component={Checkbox}
-                      disabled={!isEditing}
-                    />
-                  </FormItem>
                   <FormItem>
                     {isEditing ? (
-                      <Button type="submit" variant="solid" className="w-48">
+                      <Button type="submit" variant="solid">
                         Salvar
                       </Button>
                     ) : (
                       <Button
                         type="button"
-                        variant="twoTone"
-                        className="w-48"
                         onClick={(e) => {
                           e.preventDefault()
                           setEditing(true)

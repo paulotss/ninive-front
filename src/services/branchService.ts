@@ -5,25 +5,16 @@ import { ILoan } from './loanService'
 export interface IBranch {
   id: number
   name: string
-  email: string
-  password: string
-  admin: boolean
   books?: ILoan[]
   incomings?: IIncoming[]
 }
 
 export interface IBranchCreate {
   name: string
-  email: string
-  password: string
-  admin: boolean
 }
 
 export interface IBranchUpdate {
   name?: string
-  email?: string
-  password?: string
-  admin?: boolean
 }
 
 export async function branchCreate(data: IBranchCreate) {

@@ -7,7 +7,6 @@ export interface IItem {
   id: number
   title: string
   amount: number
-  totalAmount: number
   price: number
 }
 
@@ -52,7 +51,12 @@ const Cart = ({ items, removeItem, cleanItems, submit }: IProps) => {
               <Tr key={i.id}>
                 <Td>{i.title}</Td>
                 <Td>{i.amount}</Td>
-                <Td>{i.price}</Td>
+                <Td>
+                  {i.price.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                  })}
+                </Td>
                 <Td>
                   <Button
                     type="button"
