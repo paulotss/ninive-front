@@ -159,6 +159,7 @@ const IncomingList = () => {
 
   return (
     <>
+      <h3 className="mb-5 text-green-600">Receitas</h3>
       <div className="flex justify-between items-end mb-10">
         <p>
           Total:{' '}

@@ -43,6 +43,8 @@ const BookstoreView = () => {
     setIsLoading(true)
     try {
       await bookstoreUpdate(Number(id), values)
+      const { data } = await bookstoreGetOne(Number(id))
+      setBookStore(data)
       setIsEditing(false)
     } catch (error) {
       console.log(error)
@@ -100,10 +102,10 @@ const BookstoreView = () => {
           </p>
           <Formik
             initialValues={{
-              storeId: bookStore?.storeId,
-              returnDate: bookStore?.returnDate,
-              discount: bookStore?.discount,
-              tax: bookStore?.tax,
+              storeId: bookStore.storeId,
+              returnDate: bookStore.returnDate,
+              discount: bookStore.discount,
+              tax: bookStore.tax,
             }}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}

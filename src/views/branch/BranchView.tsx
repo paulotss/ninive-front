@@ -14,13 +14,17 @@ import {
   branchGetOne,
   branchUpdate,
 } from '@/services/branchService'
-import { ILoan } from '@/services/loanService'
+import { ILoan, loanUpdate } from '@/services/loanService'
 import { Field, Form, Formik } from 'formik'
 import { Button, FormContainer, FormItem, Input } from '@/components/ui'
 import * as Yup from 'yup'
 import dayjs from 'dayjs'
 import ReturnStatus from '@/components/custom/ReturnStatus'
 import BackButton from '@/components/custom/BackButton'
+import NewIncoming from '@/components/custom/NewIncoming'
+import { salePrice } from '@/utils/amount'
+import { IIncomingCreate, incomingCreate } from '@/services/incomingService'
+import { bookGetOne, bookUpdate } from '@/services/bookService'
 
 const { Tr, Th, Td, THead, TBody, Sorter } = Table
 
@@ -35,6 +39,30 @@ const BranchView = () => {
   const [isEditing, setEditing] = useState<boolean>(false)
   const { id } = useParams()
 
+  async function handleSubmitIncoming(
+    loanId: number,
+    returningAmount: number,
+    newIncoming: IIncomingCreate,
+  ) {
+    try {
+      await loanUpdate(loanId, {
+        closed: true,
+        closedDate: new Date(),
+        salesAmount: newIncoming.amount,
+      })
+      await incomingCreate(newIncoming)
+      const { data } = await bookGetOne(newIncoming.bookId)
+      await bookUpdate(newIncoming.bookId, {
+        amount: data.amount + returningAmount,
+      })
+      const result = await branchGetOne(Number(id))
+      setBranch(result.data)
+      setLoans(result.data.books)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   const table = useReactTable({
     data: loans,
     columns: [
@@ -47,6 +75,30 @@ const BranchView = () => {
         cell: (props) => {
           return (
             <ReturnStatus returnDate={dayjs(props.row.original.returnDate)} />
+          )
+        },
+      },
+      {
+        header: 'Ações',
+        cell: (props) => {
+          const {
+            bookId,
+            id,
+            amount,
+            book: { title, coverPrice },
+            discount,
+          } = props.row.original
+          return (
+            <NewIncoming
+              bookId={bookId}
+              branchId={branch.id}
+              branchName={branch.name}
+              bookTitle={title}
+              amount={amount}
+              salePrice={salePrice(Number(coverPrice), discount)}
+              loanId={id}
+              handleSubmitIncoming={handleSubmitIncoming}
+            />
           )
         },
       },

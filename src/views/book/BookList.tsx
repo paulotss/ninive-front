@@ -158,6 +158,7 @@ const BookList = () => {
 
   return (
     <>
+      <h3 className="mb-5">Livros</h3>
       <div className="flex mb-4">
         <DebouncedInput
           value={globalFilter ?? ''}

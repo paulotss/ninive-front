@@ -165,7 +165,7 @@ const LoanView = () => {
                       errorMessage={errors.discount?.toString()}
                     >
                       <Field
-                        type="number"
+                        type="text"
                         autoComplete="off"
                         name="discount"
                         component={Input}

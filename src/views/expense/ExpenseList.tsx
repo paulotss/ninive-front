@@ -158,6 +158,7 @@ const ExpenseList = () => {
 
   return (
     <>
+      <h3 className="mb-5 text-red-600">Despesas</h3>
       <div className="flex justify-between items-end mb-10">
         <p>
           Total:{' '}

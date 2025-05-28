@@ -156,6 +156,7 @@ const LoanList = () => {
 
   return (
     <>
+      <h3 className="mb-5">Empréstimos</h3>
       <DebouncedInput
         value={globalFilter ?? ''}
         className="p-2 font-lg shadow border border-block"
