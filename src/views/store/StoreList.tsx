@@ -90,10 +90,20 @@ const StoreList = () => {
     () => [
       { header: 'Nome', accessorKey: 'name' },
       {
-        header: 'Livros',
-        accessorKey: 'books',
+        header: 'Títulos',
         cell: (props) => {
-          return props.row.original.books.length
+          const { books } = props.row.original
+          const result = books.filter((b) => !b.closed).length
+          return result
+        },
+      },
+      {
+        header: 'Consignações',
+        cell: (props) => {
+          const { books } = props.row.original
+          const current = books.filter((b) => !b.closed)
+          const result = current.reduce((acc, b) => (acc += b.amount), 0)
+          return result
         },
       },
     ],
