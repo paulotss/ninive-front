@@ -99,10 +99,14 @@ const ExpenseList = () => {
         header: 'Valor',
         accessorKey: 'totalValue',
         cell: (props) => {
-          return Number(props.row.original.totalValue).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-          })
+          return (
+            <span className="text-red-600 font-bold">
+              {Number(props.row.original.totalValue).toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+              })}
+            </span>
+          )
         },
       },
       {
