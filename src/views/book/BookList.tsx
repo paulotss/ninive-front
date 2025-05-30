@@ -102,15 +102,6 @@ const BookList = () => {
           }),
       },
       {
-        header: 'Lucro',
-        accessorKey: 'profitMargin',
-        cell: (props) =>
-          Number(props.row.original.profitMargin).toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-          }),
-      },
-      {
         header: 'Estoque',
         accessorKey: 'amount',
       },
