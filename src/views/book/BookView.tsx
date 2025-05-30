@@ -35,6 +35,7 @@ const validationSchema = Yup.object().shape({
     .min(13, 'ISBN deve conter 13 caracteres')
     .max(13, 'ISBN deve conter 13 caracteres')
     .required('Obrigatório'),
+  author: Yup.string().required('Obrigatório'),
   description: Yup.string().required('Obrigatório'),
   publishierId: Yup.string().required('Obrigatório'),
   publicationDate: Yup.string().required('Obrigatório'),
@@ -45,9 +46,6 @@ const validationSchema = Yup.object().shape({
     .required('Obrigatório')
     .matches(/^(0|[1-9][0-9]*)$/),
   coverPrice: Yup.string()
-    .required()
-    .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Somento números'),
-  profitMargin: Yup.string()
     .required()
     .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Somento números'),
 })
@@ -269,13 +267,13 @@ const BookView = () => {
             initialValues={{
               title: book?.title,
               isbn: book?.isbn,
+              author: book?.author,
               description: book?.description,
               publishierId: book?.publishierId,
               publicationDate: new Date(book?.publicationDate),
               pages: book?.pages,
               edition: book?.edition,
               coverPrice: book?.coverPrice.toString().replace('.', ','),
-              profitMargin: book?.profitMargin,
             }}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
@@ -307,6 +305,20 @@ const BookView = () => {
                       autoComplete="off"
                       name="isbn"
                       placeholder="ISBN"
+                      component={Input}
+                      disabled={!isEditing}
+                    />
+                  </FormItem>
+                  <FormItem
+                    label="Autor"
+                    invalid={errors.author && touched.author ? true : false}
+                    errorMessage={errors.author?.toString()}
+                  >
+                    <Field
+                      type="text"
+                      autoComplete="off"
+                      name="author"
+                      placeholder="Autor"
                       component={Input}
                       disabled={!isEditing}
                     />
@@ -425,22 +437,6 @@ const BookView = () => {
                       autoComplete="off"
                       name="coverPrice"
                       placeholder="00,00"
-                      component={Input}
-                      disabled={!isEditing}
-                    />
-                  </FormItem>
-                  <FormItem
-                    label="Margem de lucro %"
-                    invalid={
-                      errors.profitMargin && touched.profitMargin ? true : false
-                    }
-                    errorMessage={errors.profitMargin?.toString()}
-                  >
-                    <Field
-                      type="text"
-                      autoComplete="off"
-                      name="profitMargin"
-                      placeholder="%"
                       component={Input}
                       disabled={!isEditing}
                     />

@@ -9,13 +9,13 @@ export interface IBook {
   id: number
   title: string
   isbn: string
+  author: string
   publicationDate: Date | string
   description: string
   pages: number
   edition: number
   amount: number
   coverPrice: string | number
-  profitMargin: string | number
   publishierId: number
   publishier?: IPublisher
   stores?: IBookstore[]
@@ -27,26 +27,26 @@ export interface IBook {
 export interface IBookCreate {
   title: string
   isbn: string
+  author: string
   publicationDate: Date
   description: string
   pages: number | string
   edition: number | string
   amount: number | string
   coverPrice: number | string
-  profitMargin: string | number
   publishierId: number | string
 }
 
 export interface IBookUpdate {
   title?: string
   isbn?: string
+  author?: string
   publicationDate?: Date
   description?: string
   pages?: number
   edition?: number
   amount?: number
   coverPrice?: number | string
-  profitMargin?: string | number
   publishierId?: number
 }
 

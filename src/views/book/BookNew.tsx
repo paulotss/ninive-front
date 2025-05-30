@@ -15,6 +15,7 @@ const validationSchema = Yup.object().shape({
     .min(13, 'ISBN deve conter 13 caracteres')
     .max(13, 'ISBN deve conter 13 caracteres')
     .required('Obrigatório'),
+  author: Yup.string().required('Obrigatório'),
   description: Yup.string().required('Obrigatório'),
   publishierId: Yup.string().required('Obrigatório'),
   publicationDate: Yup.string().required('Obrigatório'),
@@ -25,9 +26,6 @@ const validationSchema = Yup.object().shape({
     .required('Obrigatório')
     .matches(/^(0|[1-9][0-9]*)$/, 'Somente números'),
   coverPrice: Yup.string()
-    .required()
-    .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Somento números'),
-  profitMargin: Yup.string()
     .required()
     .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Somento números'),
 })
@@ -43,7 +41,6 @@ const BookNew = () => {
         pages: Number(values.pages),
         edition: Number(values.edition),
         coverPrice: values.coverPrice.toString().replace(',', '.'),
-        profitMargin: values.profitMargin.toString().replace(',', '.'),
       })
       navigate('/livros')
     } catch (e) {
@@ -70,6 +67,7 @@ const BookNew = () => {
         initialValues={{
           title: '',
           isbn: '',
+          author: '',
           description: '',
           publishierId: '',
           publicationDate: new Date(),
@@ -77,7 +75,6 @@ const BookNew = () => {
           edition: '',
           amount: 0,
           coverPrice: '',
-          profitMargin: '',
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
@@ -108,6 +105,19 @@ const BookNew = () => {
                   autoComplete="off"
                   name="isbn"
                   placeholder="ISBN"
+                  component={Input}
+                />
+              </FormItem>
+              <FormItem
+                label="Autor"
+                invalid={errors.author && touched.author ? true : false}
+                errorMessage={errors.author?.toString()}
+              >
+                <Field
+                  type="text"
+                  autoComplete="off"
+                  name="author"
+                  placeholder="Autor"
                   component={Input}
                 />
               </FormItem>
@@ -214,21 +224,6 @@ const BookNew = () => {
                   autoComplete="off"
                   name="coverPrice"
                   placeholder="00,00"
-                  component={Input}
-                />
-              </FormItem>
-              <FormItem
-                label="Margem de lucro %"
-                invalid={
-                  errors.profitMargin && touched.profitMargin ? true : false
-                }
-                errorMessage={errors.profitMargin?.toString()}
-              >
-                <Field
-                  type="text"
-                  autoComplete="off"
-                  name="profitMargin"
-                  placeholder="%"
                   component={Input}
                 />
               </FormItem>
