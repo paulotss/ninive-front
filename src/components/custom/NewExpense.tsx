@@ -57,7 +57,7 @@ const NewExpense = ({ bookstore, coverPrice, handleSubmitExpense }: IProps) => {
         <h3>Faturar | {bookstore.book.title}</h3>
         <div className="mt-5 mb-5">
           <p className="mb-3">
-            Editora: <span className="font-bold">{bookstore.store.name}</span>
+            Editora: <span className="font-bold">{bookstore?.store?.name}</span>
           </p>
           <Formik
             initialValues={{

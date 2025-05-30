@@ -70,6 +70,26 @@ const BranchView = () => {
       { header: 'ISBN', accessorKey: 'book.isbn' },
       { header: 'Quant.', accessorKey: 'amount' },
       {
+        header: 'Valor',
+        cell: (props) => {
+          const {
+            discount,
+            book: { coverPrice },
+          } = props.row.original
+          return salePrice(Number(coverPrice), discount).toLocaleString(
+            'pt-BR',
+            { style: 'currency', currency: 'BRL' },
+          )
+        },
+      },
+      {
+        header: 'Desconto',
+        cell: (props) => {
+          const { discount } = props.row.original
+          return `${discount}%`
+        },
+      },
+      {
         header: 'Devolução',
         accessorKey: 'returnDate',
         cell: (props) => {

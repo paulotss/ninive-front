@@ -1,10 +1,10 @@
 import ApiService from './ApiService'
-import { IBook } from './bookService'
+import { IBookstore } from './bookstoreService'
 
 export interface IStore {
   id: number
   name: string
-  books?: IBook[]
+  books?: IBookstore[]
 }
 
 export interface IStoreCreate {
