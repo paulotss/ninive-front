@@ -134,6 +134,9 @@ const Cashier = () => {
           <THead>
             <Tr>
               <Th>Título</Th>
+              <Th>ISBN</Th>
+              <Th>Autor</Th>
+              <Th>Editora</Th>
               <Th>Estoque</Th>
               <Th>Preço</Th>
               <Th></Th>
@@ -143,6 +146,9 @@ const Cashier = () => {
             {books?.map((b) => (
               <Tr key={b.id}>
                 <Td>{b.title}</Td>
+                <Td>{b.isbn}</Td>
+                <Td>{b.author}</Td>
+                <Td>{b.publishier?.name}</Td>
                 <Td>{b.amount}</Td>
                 <Td>
                   {Number(b.coverPrice).toLocaleString('pt-BR', {
