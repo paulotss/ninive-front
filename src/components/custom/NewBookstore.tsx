@@ -14,7 +14,7 @@ import * as Yup from 'yup'
 import { IStore, storeGetAll } from '@/services/storeService'
 import { BsFileArrowDownFill } from 'react-icons/bs'
 import { IBookstoreCreate } from '@/services/bookstoreService'
-import { discountPrice } from '@/utils/amount'
+import { discountPrice, salePrice } from '@/utils/amount'
 
 interface IProps {
   bookId: number
@@ -159,9 +159,11 @@ const NewBookstore = ({
                         </FormItem>
                       </div>
                       <div className="p-5 text-right w-full">
-                        <p className="mb-5">
-                          Preço de capa:{' '}
-                          <span className="text-blue-600 font-bold text-lg">
+                        <p>
+                          <span className="italic text-xs">
+                            Preço de capa:{' '}
+                          </span>
+                          <span className="text-blue-500 font-bold text-lg">
                             {coverPrice.toLocaleString('pt-BR', {
                               style: 'currency',
                               currency: 'BRL',
@@ -169,8 +171,22 @@ const NewBookstore = ({
                           </span>
                         </p>
                         <p>
-                          Preço final:{' '}
+                          <span className="italic text-xs">
+                            Preço com desconto:{' '}
+                          </span>
                           <span className="text-green-600 font-bold text-lg">
+                            {salePrice(
+                              coverPrice,
+                              Number(values.discount),
+                            ).toLocaleString('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL',
+                            })}
+                          </span>
+                        </p>
+                        <p>
+                          <span className="italic text-xs">Preço final: </span>
+                          <span className="text-[#4e46e5] font-bold text-lg">
                             {discountPrice(
                               coverPrice,
                               Number(values.tax),

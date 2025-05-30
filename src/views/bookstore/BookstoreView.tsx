@@ -20,7 +20,7 @@ import {
   Dialog,
 } from '../../components/ui'
 import { IStore, storeGetAll } from '../../services/storeService'
-import { discountPrice } from '../../utils/amount'
+import { discountPrice, salePrice } from '../../utils/amount'
 import BackButton from '../../components/custom/BackButton'
 
 const validationSchema = Yup.object().shape({
@@ -176,8 +176,8 @@ const BookstoreView = () => {
                       </FormItem>
                     </div>
                     <div className="p-5 text-right w-full">
-                      <p className="mb-5">
-                        Preço de capa:{' '}
+                      <p>
+                        <span className="italic text-xs">Preço de capa: </span>
                         <span className="text-blue-600 font-bold text-lg">
                           {Number(bookStore?.book.coverPrice).toLocaleString(
                             'pt-BR',
@@ -189,8 +189,22 @@ const BookstoreView = () => {
                         </span>
                       </p>
                       <p>
-                        Preço final:{' '}
-                        <span className="text-green-600 font-bold text-lg">
+                        <span className="italic text-xs">
+                          Preço com desconto:{' '}
+                        </span>
+                        <span className="text-green-500 font-bold text-lg">
+                          {salePrice(
+                            Number(bookStore?.book.coverPrice),
+                            Number(values.discount),
+                          ).toLocaleString('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL',
+                          })}
+                        </span>
+                      </p>
+                      <p>
+                        <span className="italic text-xs">Preço final: </span>
+                        <span className="text-[#4e46e5] font-bold text-lg">
                           {discountPrice(
                             Number(bookStore?.book.coverPrice),
                             Number(values.tax),

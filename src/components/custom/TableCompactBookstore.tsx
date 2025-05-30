@@ -27,9 +27,8 @@ const TableCompactBookstore = ({
         <Tr>
           <Th>Fornecedor</Th>
           <Th>Quant.</Th>
-          <Th>Valor</Th>
-          <Th>Desconto</Th>
-          <Th>Frete</Th>
+          <Th>Valor Total</Th>
+          <Th>Valor Desc.</Th>
           <Th>Devolução</Th>
           <Th>Ações</Th>
         </Tr>

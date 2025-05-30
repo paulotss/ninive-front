@@ -4,7 +4,7 @@ import { Button, Table } from '../ui'
 import { ILoanCreate } from '@/services/loanService'
 import NewExpense from './NewExpense'
 import { IExpenseCreate } from '@/services/expenseService'
-import { discountPrice } from '@/utils/amount'
+import { discountPrice, salePrice } from '@/utils/amount'
 import dayjs from 'dayjs'
 import ReturnStatus from './ReturnStatus'
 import { MdEdit } from 'react-icons/md'
@@ -43,8 +43,15 @@ const RowCompactBookstore = ({
           currency: 'BRL',
         })}
       </Td>
-      <Td>{`${bookstore.discount}%`}</Td>
-      <Td>{`${bookstore.tax}%`}</Td>
+      <Td>
+        {salePrice(Number(coverPrice), bookstore.discount).toLocaleString(
+          'pt-BR',
+          {
+            style: 'currency',
+            currency: 'BRL',
+          },
+        )}
+      </Td>
       <Td>
         <ReturnStatus returnDate={dayjs(bookstore.returnDate)} />
       </Td>
