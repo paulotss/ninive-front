@@ -209,6 +209,7 @@ const BookList = () => {
             return (
               <Tr
                 key={row.id}
+                className="cursor-pointer"
                 onClick={() => navigate(`/livro/${row.original.id}`)}
               >
                 {row.getVisibleCells().map((cell) => {

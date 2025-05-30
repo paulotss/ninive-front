@@ -197,6 +197,7 @@ const LoanList = () => {
             return (
               <Tr
                 key={row.id}
+                className="cursor-pointer"
                 onClick={() => navigate(`/emprestimo/${row.original.id}`)}
               >
                 {row.getVisibleCells().map((cell) => {
