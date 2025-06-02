@@ -11,6 +11,7 @@ import {
   bookUpdate,
   IBook,
 } from '@/services/bookService'
+import { discountPrice } from '@/utils/amount'
 
 const { Tr, Th, Td, THead, TBody } = Table
 
@@ -29,6 +30,37 @@ const Cashier = () => {
     setSearch({ ...search, [target.name]: target.value })
   }
 
+  // Perda de desempenho se array de expenses for muito grande
+  function getAverageCost(bookId: number): number {
+    interface ICost {
+      value: number[]
+      amount: number
+    }
+    const book = books.find((b) => b.id === bookId)
+    const storeCosts: ICost = book.stores.reduce(
+      (acc, s) => {
+        acc.value.push(
+          discountPrice(Number(book.coverPrice), s.tax, s.discount),
+        )
+        acc.amount += s.amount
+        return acc
+      },
+      { value: [], amount: 0 },
+    )
+    const expenseCosts: ICost = book.expenses.reduce(
+      (acc, e) => {
+        if (acc.amount < book.amount + 1) {
+          acc.value.push(Number(e.totalValue) / e.amount)
+          acc.amount += e.amount
+        }
+        return acc
+      },
+      { value: [], amount: 0 },
+    )
+    const totalCosts: number[] = [...storeCosts.value, ...expenseCosts.value]
+    return totalCosts.reduce((acc, t) => (acc += t), 0) / totalCosts.length
+  }
+
   function handleClickAddItem(id: number) {
     const book = books.find((l) => l.id === id)
     if (book.amount > 0) {
@@ -44,6 +76,7 @@ const Cashier = () => {
           title: book.title,
           amount: 1,
           price: Number(book.coverPrice),
+          cost: getAverageCost(book.id),
         }
         setItems([...items, newItem])
       }
@@ -79,13 +112,13 @@ const Cashier = () => {
     setItems(newItems)
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(totalValue: number) {
     try {
       const incomings: IIncomingCreate[] = items.map((i) => ({
         bookId: books.find((b) => b.id === i.id).id,
         branchId: Number(user.id),
         amount: i.amount,
-        totalValue: i.amount * i.price,
+        totalValue,
       }))
       await incomingCreateMany(incomings)
       items.forEach(async (i) => {
