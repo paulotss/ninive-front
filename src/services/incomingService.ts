@@ -58,6 +58,13 @@ export async function incomingGetOne(id: number) {
   })
 }
 
+export async function incomingGetMostSellers(amount: number) {
+  return ApiService.fetchData<IIncoming[]>({
+    url: `/incoming/mostseller/${amount}`,
+    method: 'get',
+  })
+}
+
 export async function incomingRemove(id: number) {
   return ApiService.fetchData<IIncoming>({
     url: `/incoming/${id}`,

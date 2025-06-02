@@ -1,7 +1,11 @@
 import Chart from 'react-apexcharts'
 import { COLORS } from '@/constants/chart.constant'
+import { useEffect, useState } from 'react'
+import { IIncoming, incomingGetMostSellers } from '@/services/incomingService'
 
 const Home = () => {
+  const [incomings, setIncomings] = useState<IIncoming[]>([])
+
   const data = [
     {
       name: 'Net Profit',
@@ -16,6 +20,19 @@ const Home = () => {
       data: [35, 41, 36, 26, 45, 48, 52, 53, 41],
     },
   ]
+
+  useEffect(() => {
+    async function getIncomings() {
+      try {
+        const { data } = await incomingGetMostSellers(5)
+        setIncomings(data)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    getIncomings()
+  }, [])
 
   return (
     <>
@@ -68,7 +85,7 @@ const Home = () => {
       <Chart
         options={{
           colors: COLORS,
-          labels: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E'],
+          labels: incomings.map((i) => i.book.title),
           responsive: [
             {
               breakpoint: 480,
@@ -83,7 +100,7 @@ const Home = () => {
             },
           ],
         }}
-        series={[44, 55, 13, 43, 22]}
+        series={incomings.map((i) => i.amount)}
         height={300}
         type="pie"
       />
