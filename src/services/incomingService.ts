@@ -19,6 +19,12 @@ export interface IIncomingCreate {
   totalValue: number
 }
 
+export interface IIncomingMostSeller {
+  bookId: number
+  _sum: { amount: number }
+  book?: IBook
+}
+
 export async function incomingCreate(data: IIncomingCreate) {
   return ApiService.fetchData<IIncoming, IIncomingCreate>({
     url: '/incoming',
@@ -58,9 +64,9 @@ export async function incomingGetOne(id: number) {
   })
 }
 
-export async function incomingGetMostSellers(amount: number) {
-  return ApiService.fetchData<IIncoming[]>({
-    url: `/incoming/mostseller/${amount}`,
+export async function incomingGetMostSellers() {
+  return ApiService.fetchData<IIncomingMostSeller[]>({
+    url: `/incoming/most/seller`,
     method: 'get',
   })
 }
