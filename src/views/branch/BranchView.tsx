@@ -25,6 +25,7 @@ import NewIncoming from '@/components/custom/NewIncoming'
 import { salePrice } from '@/utils/amount'
 import { IIncomingCreate, incomingCreate } from '@/services/incomingService'
 import { bookGetOne, bookUpdate } from '@/services/bookService'
+import ExportButton from '@/components/custom/ExportButton'
 
 const { Tr, Th, Td, THead, TBody, Sorter } = Table
 
@@ -208,7 +209,7 @@ const BranchView = () => {
       )}
       {loans && (
         <>
-          <h4 className="mt-5 mb-3">Livro em venda</h4>
+          <h4 className="mt-5 mb-3">Livros em venda</h4>
           <Table>
             <THead>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -260,6 +261,25 @@ const BranchView = () => {
                 })}
             </TBody>
           </Table>
+          <div className="mt-5">
+            <ExportButton
+              payload={loans.map((l) => ({
+                Título: l.book.title,
+                ISBN: l.book.isbn,
+                Quantidade: l.amount,
+                Valor: salePrice(
+                  Number(l.book.coverPrice),
+                  l.discount,
+                ).toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                }),
+                Desconto: `${l.discount}%`,
+                Devolução: dayjs(l.returnDate).format('DD/MM/YYYY'),
+              }))}
+              filename={branch?.name}
+            />
+          </div>
         </>
       )}
     </>
