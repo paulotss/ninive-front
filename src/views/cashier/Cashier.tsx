@@ -115,7 +115,7 @@ const Cashier = () => {
   async function handleSubmit(totalValue: number) {
     try {
       const incomings: IIncomingCreate[] = items.map((i) => ({
-        bookId: books.find((b) => b.id === i.id).id,
+        bookId: i.id,
         branchId: Number(user.id),
         amount: i.amount,
         totalValue,
@@ -123,7 +123,7 @@ const Cashier = () => {
       await incomingCreateMany(incomings)
       items.forEach(async (i) => {
         await bookUpdate(i.id, {
-          amount: i.amount,
+          amount: books.find((b) => b.id === i.id).amount,
         })
       })
       setSearch({ term: '', method: 'isbn' })
@@ -157,6 +157,7 @@ const Cashier = () => {
             name="term"
             placeholder="Busca"
             className="mr-1"
+            value={search.term}
             onChange={handleChangeSearch}
           />
           <Button type="submit">Buscar</Button>
