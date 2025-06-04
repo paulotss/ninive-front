@@ -21,16 +21,19 @@ const NewExpense = ({ bookstore, coverPrice, handleSubmitExpense }: IProps) => {
 
   async function handleSubmit(values: {
     amount: number
-    discount: number
-    tax: number
+    discount: number | string
+    tax: number | string
   }) {
     const newExpense: IExpenseCreate = {
       bookId: bookstore.bookId,
       storeId: bookstore.storeId,
       amount: values.amount,
       totalValue:
-        discountPrice(Number(coverPrice), values.tax, values.discount) *
-        values.amount,
+        discountPrice(
+          Number(coverPrice),
+          Number(values.tax.toString().replace(',', '.')),
+          Number(values.discount.toString().replace(',', '.')),
+        ) * values.amount,
     }
     const newBookAmount = bookstore.amount - values.amount
     handleSubmitExpense(bookstore.id, newBookAmount, newExpense)
@@ -62,8 +65,8 @@ const NewExpense = ({ bookstore, coverPrice, handleSubmitExpense }: IProps) => {
           <Formik
             initialValues={{
               amount: 0,
-              discount: 0,
-              tax: 0,
+              discount: '',
+              tax: '',
             }}
             validationSchema={Yup.object().shape({
               amount: Yup.number()
@@ -71,16 +74,12 @@ const NewExpense = ({ bookstore, coverPrice, handleSubmitExpense }: IProps) => {
                 .max(bookstore.amount, 'Quantidade superior ao estoque')
                 .required('Obrigatório')
                 .typeError('Valor inválido'),
-              discount: Yup.number()
-                .min(0, 'Mínimo: 0')
-                .max(100, 'Máximo: 100')
-                .required('Obrigatório')
-                .typeError('Valor inválido'),
-              tax: Yup.number()
-                .min(0, 'Mínimo: 0')
-                .max(100, 'Máximo: 100')
-                .required('Obrigatório')
-                .typeError('Valor inválido'),
+              discount: Yup.string()
+                .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Formato: 0,00')
+                .required('Obrigatório'),
+              tax: Yup.string()
+                .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Formato: 0,00')
+                .required('Obrigatório'),
             })}
             onSubmit={handleSubmit}
           >
@@ -110,7 +109,7 @@ const NewExpense = ({ bookstore, coverPrice, handleSubmitExpense }: IProps) => {
                         errorMessage={errors.discount?.toString()}
                       >
                         <Field
-                          type="number"
+                          type="text"
                           autoComplete="off"
                           name="discount"
                           placeholder="Desconto"
@@ -123,7 +122,7 @@ const NewExpense = ({ bookstore, coverPrice, handleSubmitExpense }: IProps) => {
                         errorMessage={errors.tax?.toString()}
                       >
                         <Field
-                          type="number"
+                          type="text"
                           autoComplete="off"
                           name="tax"
                           placeholder="Taxa"
@@ -149,8 +148,10 @@ const NewExpense = ({ bookstore, coverPrice, handleSubmitExpense }: IProps) => {
                           {(
                             discountPrice(
                               Number(coverPrice),
-                              values.tax,
-                              values.discount,
+                              Number(values.tax.toString().replace(',', '.')),
+                              Number(
+                                values.discount.toString().replace(',', '.'),
+                              ),
                             ) * values.amount
                           ).toLocaleString('pt-BR', {
                             style: 'currency',

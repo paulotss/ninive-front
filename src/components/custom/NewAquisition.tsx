@@ -78,10 +78,7 @@ const NewAquisition = ({ bookId, handleSubmitAquisition }: IProps) => {
               amount: Yup.number().min(1, 'Mínimo: 1').required('Obrigatório'),
               totalValue: Yup.string()
                 .required()
-                .matches(
-                  /^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/,
-                  'Somento números',
-                )
+                .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Formato: 0,00')
                 .required('Obrigatório'),
             })}
             onSubmit={handleDialogOk}

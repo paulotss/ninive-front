@@ -157,7 +157,10 @@ const BookView = () => {
 
   async function handleSubmitAquisition(values: IExpenseCreate) {
     try {
-      await expenseCreate({ ...values, totalValue: Number(values.totalValue) })
+      await expenseCreate({
+        ...values,
+        totalValue: Number(values.totalValue.toString().replace(',', '.')),
+      })
       await bookUpdate(Number(id), { amount: book.amount + values.amount })
       const { data } = await bookGetOne(Number(id))
       setBook(data)
