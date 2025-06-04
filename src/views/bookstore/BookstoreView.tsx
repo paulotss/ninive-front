@@ -26,8 +26,12 @@ import BackButton from '../../components/custom/BackButton'
 const validationSchema = Yup.object().shape({
   storeId: Yup.string().required('Obrigatório'),
   returnDate: Yup.date().required('Obrigatório'),
-  discount: Yup.string().required('Obrigatório'),
-  tax: Yup.string().required('Obrigatório'),
+  discount: Yup.string()
+    .required('Obrigatório')
+    .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Formato: 0,00'),
+  tax: Yup.string()
+    .required('Obrigatório')
+    .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Formato: 0,00'),
 })
 
 const BookstoreView = () => {
@@ -42,7 +46,11 @@ const BookstoreView = () => {
   async function handleSubmit(values: IBookstoreUpdate) {
     setIsLoading(true)
     try {
-      await bookstoreUpdate(Number(id), values)
+      await bookstoreUpdate(Number(id), {
+        ...values,
+        tax: values.tax.toString().replace(',', '.'),
+        discount: values.discount.toString().replace(',', '.'),
+      })
       const { data } = await bookstoreGetOne(Number(id))
       setBookStore(data)
       setIsEditing(false)
@@ -104,8 +112,8 @@ const BookstoreView = () => {
             initialValues={{
               storeId: bookStore.storeId,
               returnDate: bookStore.returnDate,
-              discount: bookStore.discount,
-              tax: bookStore.tax,
+              discount: bookStore.discount.toString().replace('.', ','),
+              tax: bookStore.tax.toString().replace('.', ','),
             }}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
@@ -195,7 +203,9 @@ const BookstoreView = () => {
                         <span className="text-green-500 font-bold text-lg">
                           {salePrice(
                             Number(bookStore?.book.coverPrice),
-                            Number(values.discount),
+                            Number(
+                              values.discount.toString().replace(',', '.'),
+                            ),
                           ).toLocaleString('pt-BR', {
                             style: 'currency',
                             currency: 'BRL',
@@ -207,8 +217,10 @@ const BookstoreView = () => {
                         <span className="text-[#4e46e5] font-bold text-lg">
                           {discountPrice(
                             Number(bookStore?.book.coverPrice),
-                            Number(values.tax),
-                            Number(values.discount),
+                            Number(values.tax.toString().replace(',', '.')),
+                            Number(
+                              values.discount.toString().replace(',', '.'),
+                            ),
                           ).toLocaleString('pt-BR', {
                             style: 'currency',
                             currency: 'BRL',

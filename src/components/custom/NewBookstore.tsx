@@ -25,8 +25,12 @@ interface IProps {
 const validationSchema = Yup.object().shape({
   storeId: Yup.string().required('Obrigatório'),
   returnDate: Yup.date().required('Obrigatório'),
-  discount: Yup.string().required('Obrigatório'),
-  tax: Yup.string().required('Obrigatório'),
+  discount: Yup.string()
+    .required()
+    .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Formato: 0,00'),
+  tax: Yup.string()
+    .required()
+    .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Formato: 0,00'),
   amount: Yup.string()
     .required('Obrigatório')
     .matches(/^(0|[1-9][0-9]*)$/, 'Somente números'),
@@ -177,7 +181,9 @@ const NewBookstore = ({
                           <span className="text-green-600 font-bold text-lg">
                             {salePrice(
                               coverPrice,
-                              Number(values.discount),
+                              Number(
+                                values.discount.toString().replace(',', '.'),
+                              ),
                             ).toLocaleString('pt-BR', {
                               style: 'currency',
                               currency: 'BRL',
@@ -189,8 +195,10 @@ const NewBookstore = ({
                           <span className="text-[#4e46e5] font-bold text-lg">
                             {discountPrice(
                               coverPrice,
-                              Number(values.tax),
-                              Number(values.discount),
+                              Number(values.tax.toString().replace(',', '.')),
+                              Number(
+                                values.discount.toString().replace(',', '.'),
+                              ),
                             ).toLocaleString('pt-BR', {
                               style: 'currency',
                               currency: 'BRL',

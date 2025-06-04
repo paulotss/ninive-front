@@ -47,7 +47,7 @@ const validationSchema = Yup.object().shape({
     .matches(/^(0|[1-9][0-9]*)$/),
   coverPrice: Yup.string()
     .required()
-    .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Somento números'),
+    .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Formato: 0,00'),
 })
 
 const { TabNav, TabList, TabContent } = Tabs
@@ -83,6 +83,8 @@ const BookView = () => {
         ...values,
         storeId: Number(values.storeId),
         amount: Number(values.amount),
+        discount: values.discount.toString().replace(',', '.'),
+        tax: values.tax.toString().replace(',', '.'),
       })
       await bookUpdate(Number(id), {
         amount: book.amount + Number(values.amount),
@@ -98,7 +100,7 @@ const BookView = () => {
     try {
       await loanCreate({
         ...values,
-        discount: values.discount.toString(),
+        discount: values.discount.toString().replace(',', '.'),
         branchId: Number(values.branchId),
         amount: Number(values.amount),
       })

@@ -29,10 +29,10 @@ export interface IBookstoreCreate {
 export interface IBookstoreUpdate {
   bookId?: number
   storeId?: number
-  tax?: number
+  tax?: number | string
   returnDate?: Date
-  amount?: number
-  discount?: number
+  amount?: number | string
+  discount?: number | string
   closed?: boolean
   closedDate?: Date
 }

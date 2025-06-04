@@ -123,7 +123,7 @@ const Cashier = () => {
       await incomingCreateMany(incomings)
       items.forEach(async (i) => {
         await bookUpdate(i.id, {
-          amount: books.find((b) => b.id === i.id).amount,
+          amount: books?.find((b) => b.id === i.id).amount,
         })
       })
       setSearch({ term: '', method: 'isbn' })

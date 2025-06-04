@@ -26,10 +26,9 @@ import BackButton from '@/components/custom/BackButton'
 const validationSchema = Yup.object().shape({
   branchId: Yup.string().required('Obrigatório'),
   returnDate: Yup.date().required('Obrigatório'),
-  discount: Yup.number()
-    .max(100, 'Máximo: 100')
-    .min(1, 'Mínimo: 1')
-    .required('Obrigatório'),
+  discount: Yup.string()
+    .required()
+    .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Formato: 0,00'),
 })
 
 const LoanView = () => {
@@ -43,7 +42,10 @@ const LoanView = () => {
 
   async function handleSubmit(values: ILoanUpdate) {
     try {
-      await loanUpdate(Number(id), values)
+      await loanUpdate(Number(id), {
+        ...values,
+        discount: values.discount.toString().replace(',', '.'),
+      })
       setIsEditing(false)
     } catch (error) {
       console.log(error)
@@ -98,7 +100,7 @@ const LoanView = () => {
             initialValues={{
               branchId: loan.branchId,
               returnDate: new Date(loan.returnDate),
-              discount: loan.discount,
+              discount: loan.discount.toString().replace('.', ','),
             }}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
@@ -190,7 +192,9 @@ const LoanView = () => {
                         <span className="text-green-600 font-bold text-lg">
                           {salePrice(
                             Number(loan.book.coverPrice),
-                            Number(values.discount),
+                            Number(
+                              values.discount.toString().replace(',', '.'),
+                            ),
                           ).toLocaleString('pt-BR', {
                             style: 'currency',
                             currency: 'BRL',
