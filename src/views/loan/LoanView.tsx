@@ -22,14 +22,7 @@ import {
 import { branchGetAll, IBranch } from '@/services/branchService'
 import { salePrice } from '@/utils/amount'
 import BackButton from '@/components/custom/BackButton'
-
-const validationSchema = Yup.object().shape({
-  branchId: Yup.string().required('Obrigatório'),
-  returnDate: Yup.date().required('Obrigatório'),
-  discount: Yup.string()
-    .required()
-    .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Formato: 0,00'),
-})
+import { bookUpdate } from '@/services/bookService'
 
 const LoanView = () => {
   const [loan, setLoan] = useState<ILoan>()
@@ -46,6 +39,11 @@ const LoanView = () => {
         ...values,
         discount: values.discount.toString().replace(',', '.'),
       })
+      if (values.amount !== loan.amount) {
+        await bookUpdate(loan.book.id, {
+          amount: loan.book.amount + (loan.amount - values.amount),
+        })
+      }
       setIsEditing(false)
     } catch (error) {
       console.log(error)
@@ -101,8 +99,22 @@ const LoanView = () => {
               branchId: loan.branchId,
               returnDate: new Date(loan.returnDate),
               discount: loan.discount.toString().replace('.', ','),
+              amount: loan.amount,
             }}
-            validationSchema={validationSchema}
+            validationSchema={Yup.object().shape({
+              branchId: Yup.string().required('Obrigatório'),
+              returnDate: Yup.date().required('Obrigatório'),
+              discount: Yup.string()
+                .required()
+                .matches(
+                  /^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/,
+                  'Formato: 0,00',
+                ),
+              amount: Yup.number()
+                .min(1, 'Mínimo: 1')
+                .max(loan.amount, `Máximo: ${loan.amount}`)
+                .required('Obrigatório'),
+            })}
             onSubmit={handleSubmit}
           >
             {({ values, touched, errors }) => (
@@ -158,6 +170,37 @@ const LoanView = () => {
                       )}
                     </Field>
                   </FormItem>
+                  <div className="flex items-center">
+                    <FormItem
+                      label="Quantidade"
+                      invalid={errors.amount && touched.amount ? true : false}
+                      errorMessage={errors.amount?.toString()}
+                    >
+                      <Field
+                        type="number"
+                        autoComplete="off"
+                        name="amount"
+                        component={Input}
+                        disabled={!isEditing}
+                      />
+                    </FormItem>
+                    {isEditing && (
+                      <div className="p-3 border ml-5 h-fit">
+                        <p>
+                          Estoque atual:{' '}
+                          <span className="font-bold text-xl">
+                            {loan.book.amount}
+                          </span>
+                        </p>
+                        <p>
+                          Estoque final:{' '}
+                          <span className="font-bold text-xl">
+                            {loan.book.amount + (loan.amount - values.amount)}
+                          </span>
+                        </p>
+                      </div>
+                    )}
+                  </div>
                   <div className="flex">
                     <FormItem
                       label="Desconto(%)"
