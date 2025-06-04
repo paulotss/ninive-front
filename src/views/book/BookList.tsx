@@ -91,7 +91,7 @@ const BookList = () => {
       { header: 'Título', accessorKey: 'title' },
       { header: 'ISBN', accessorKey: 'isbn' },
       { header: 'Editora', accessorKey: 'publishier.name' },
-      { header: 'Edição', accessorKey: 'edition' },
+      { header: 'Local', accessorKey: 'location.title' },
       {
         header: 'Preço',
         accessorKey: 'coverPrice',

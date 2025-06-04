@@ -8,6 +8,7 @@ import { IPublisher, publisherGetAll } from '@/services/publisherService'
 import { IBookCreate, bookCreate } from '@/services/bookService'
 import * as Yup from 'yup'
 import { Form, Formik, Field, FieldProps } from 'formik'
+import { ILocation, locationGetAll } from '@/services/locationService'
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('Obrigatório'),
@@ -17,6 +18,7 @@ const validationSchema = Yup.object().shape({
     .required('Obrigatório'),
   author: Yup.string().required('Obrigatório'),
   description: Yup.string().required('Obrigatório'),
+  locationId: Yup.string().required('Obrigatório'),
   publishierId: Yup.string().required('Obrigatório'),
   publicationDate: Yup.string().required('Obrigatório'),
   pages: Yup.string()
@@ -32,6 +34,7 @@ const validationSchema = Yup.object().shape({
 
 const BookNew = () => {
   const [publishers, setPublishers] = useState<IPublisher[]>([])
+  const [locations, setLocations] = useState<ILocation[]>([])
   const navigate = useNavigate()
 
   async function handleSubmit(values: IBookCreate) {
@@ -57,7 +60,18 @@ const BookNew = () => {
         console.log(e)
       }
     }
+
+    async function getLocations() {
+      try {
+        const resp = await locationGetAll()
+        setLocations(resp.data)
+      } catch (e) {
+        console.log(e)
+      }
+    }
+
     getPublishers()
+    getLocations()
   }, [])
 
   return (
@@ -69,6 +83,7 @@ const BookNew = () => {
           isbn: '',
           author: '',
           description: '',
+          locationId: '',
           publishierId: '',
           publicationDate: new Date(),
           pages: '',
@@ -137,13 +152,41 @@ const BookNew = () => {
                 />
               </FormItem>
               <FormItem
+                label="Localização"
+                invalid={errors.locationId && touched.locationId ? true : false}
+                errorMessage={errors.locationId}
+              >
+                <Field name="publishierId">
+                  {({ field, form }: FieldProps) => (
+                    <Select
+                      field={field}
+                      form={form}
+                      placeholder="Selecione"
+                      options={locations.map((l) => ({
+                        value: l.id,
+                        label: l.title,
+                      }))}
+                      value={locations
+                        .filter((option) => option.id === values.locationId)
+                        .map((l) => ({
+                          value: l.id,
+                          label: l.title,
+                        }))}
+                      onChange={(option) =>
+                        form.setFieldValue(field.name, option?.value)
+                      }
+                    />
+                  )}
+                </Field>
+              </FormItem>
+              <FormItem
                 label="Editora"
                 invalid={
                   errors.publishierId && touched.publishierId ? true : false
                 }
                 errorMessage={errors.publishierId}
               >
-                <Field name="publishierId">
+                <Field name="locationId">
                   {({ field, form }: FieldProps) => (
                     <Select
                       field={field}

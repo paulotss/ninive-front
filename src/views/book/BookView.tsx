@@ -28,6 +28,7 @@ import { expenseCreate, IExpenseCreate } from '@/services/expenseService'
 import NewLoan from '@/components/custom/NewLoan'
 import { IIncomingCreate, incomingCreate } from '@/services/incomingService'
 import NewAquisition from '@/components/custom/NewAquisition'
+import { ILocation, locationGetAll } from '@/services/locationService'
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('Obrigatório'),
@@ -55,6 +56,7 @@ const { TabNav, TabList, TabContent } = Tabs
 const BookView = () => {
   const [book, setBook] = useState<IBook>()
   const [publishers, setPublishers] = useState<IPublisher[]>([])
+  const [locations, setLocations] = useState<ILocation[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isEditing, setEditing] = useState<boolean>(false)
   const { id } = useParams()
@@ -180,8 +182,10 @@ const BookView = () => {
       try {
         const respBook = await bookGetOne(Number(id))
         const respPublishers = await publisherGetAll()
+        const respLocations = await locationGetAll()
         setBook(respBook.data)
         setPublishers(respPublishers.data)
+        setLocations(respLocations.data)
       } catch (e) {
         console.log(e)
       }
@@ -274,6 +278,7 @@ const BookView = () => {
               isbn: book?.isbn,
               author: book?.author,
               description: book?.description,
+              locationId: book?.locationId,
               publishierId: book?.publishierId,
               publicationDate: new Date(book?.publicationDate),
               pages: book?.pages,
@@ -343,6 +348,36 @@ const BookView = () => {
                       textArea={true}
                       disabled={!isEditing}
                     />
+                  </FormItem>
+                  <FormItem
+                    label="Localização"
+                    invalid={
+                      errors.locationId && touched.locationId ? true : false
+                    }
+                    errorMessage={errors.locationId?.toString()}
+                  >
+                    <Field name="locationId">
+                      {({ field, form }: FieldProps<IBookCreate>) => (
+                        <Select
+                          field={field}
+                          isDisabled={!isEditing}
+                          form={form}
+                          options={locations.map((l) => ({
+                            value: l.id,
+                            label: l.title,
+                          }))}
+                          value={locations
+                            .filter((option) => option.id === values.locationId)
+                            .map((l) => ({
+                              value: l.id,
+                              label: l.title,
+                            }))}
+                          onChange={(option) =>
+                            form.setFieldValue(field.name, option?.value)
+                          }
+                        />
+                      )}
+                    </Field>
                   </FormItem>
                   <FormItem
                     label="Editora"

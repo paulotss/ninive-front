@@ -171,6 +171,7 @@ const Cashier = () => {
               <Th>ISBN</Th>
               <Th>Autor</Th>
               <Th>Editora</Th>
+              <Th>Local</Th>
               <Th>Estoque</Th>
               <Th>Preço</Th>
               <Th></Th>
@@ -183,6 +184,7 @@ const Cashier = () => {
                 <Td>{b.isbn}</Td>
                 <Td>{b.author}</Td>
                 <Td>{b.publishier?.name}</Td>
+                <Td>{b.location?.title}</Td>
                 <Td>{b.amount}</Td>
                 <Td>
                   {Number(b.coverPrice).toLocaleString('pt-BR', {

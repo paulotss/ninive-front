@@ -3,6 +3,7 @@ import { IBookstore } from './bookstoreService'
 import { IExpense } from './expenseService'
 import { IIncoming } from './incomingService'
 import { ILoan } from './loanService'
+import { ILocation } from './locationService'
 import { IPublisher } from './publisherService'
 
 export interface IBook {
@@ -16,6 +17,8 @@ export interface IBook {
   edition: number
   amount: number
   coverPrice: string | number
+  locationId: number
+  location?: ILocation
   publishierId: number
   publishier?: IPublisher
   stores?: IBookstore[]
@@ -34,6 +37,7 @@ export interface IBookCreate {
   edition: number | string
   amount: number | string
   coverPrice: number | string
+  locationId: number | string
   publishierId: number | string
 }
 
@@ -47,6 +51,7 @@ export interface IBookUpdate {
   edition?: number
   amount?: number
   coverPrice?: number | string
+  locationId?: number
   publishierId?: number
 }
 
