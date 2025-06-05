@@ -265,9 +265,15 @@ const BranchView = () => {
             <ExportButton
               payload={loans.map((l) => ({
                 Título: l.book.title,
+                Autor: l.book.author,
+                Editora: l.book.publishier?.name,
                 ISBN: l.book.isbn,
                 Quantidade: l.amount,
-                Valor: salePrice(
+                PCapa: Number(l.book.coverPrice).toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                }),
+                PDesconto: salePrice(
                   Number(l.book.coverPrice),
                   l.discount,
                 ).toLocaleString('pt-BR', {
@@ -276,6 +282,7 @@ const BranchView = () => {
                 }),
                 Desconto: `${l.discount}%`,
                 Devolução: dayjs(l.returnDate).format('DD/MM/YYYY'),
+                Vendas: '',
               }))}
               filename={branch?.name}
             />
