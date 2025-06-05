@@ -121,6 +121,24 @@ export const protectedRoutes = [
     authority: ['admin', 'user'],
   },
   {
+    key: 'locationList',
+    path: '/locais',
+    component: lazy(() => import('@/views/location/LocationList')),
+    authority: ['admin', 'user'],
+  },
+  {
+    key: 'locationView',
+    path: '/local/:id',
+    component: lazy(() => import('@/views/location/LocationView')),
+    authority: ['admin', 'user'],
+  },
+  {
+    key: 'locationNew',
+    path: '/local/novo',
+    component: lazy(() => import('@/views/location/LocationNew')),
+    authority: ['admin', 'user'],
+  },
+  {
     key: 'cashier',
     path: '/caixa',
     component: lazy(() => import('@/views/cashier/Cashier')),

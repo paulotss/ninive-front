@@ -29,6 +29,7 @@ import NewLoan from '@/components/custom/NewLoan'
 import { IIncomingCreate, incomingCreate } from '@/services/incomingService'
 import NewAquisition from '@/components/custom/NewAquisition'
 import { ILocation, locationGetAll } from '@/services/locationService'
+import BackButton from '@/components/custom/BackButton'
 
 const validationSchema = Yup.object().shape({
   title: Yup.string().required('Obrigatório'),
@@ -196,6 +197,7 @@ const BookView = () => {
 
   return (
     <>
+      <BackButton />
       {!isLoading ? (
         <>
           <h1>{book?.title}</h1>

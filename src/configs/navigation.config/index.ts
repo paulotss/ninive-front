@@ -127,6 +127,16 @@ const navigationConfig: NavigationTree[] = [
     authority: ['admin', 'user'],
     subMenu: [],
   },
+  {
+    key: 'locationList',
+    path: '/locais',
+    title: 'Locais',
+    translateKey: 'nav.locationList',
+    icon: '',
+    type: NAV_ITEM_TYPE_ITEM,
+    authority: ['admin', 'user'],
+    subMenu: [],
+  },
 ]
 
 export default navigationConfig

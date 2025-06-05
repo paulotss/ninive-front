@@ -156,7 +156,7 @@ const BookNew = () => {
                 invalid={errors.locationId && touched.locationId ? true : false}
                 errorMessage={errors.locationId}
               >
-                <Field name="publishierId">
+                <Field name="locationId">
                   {({ field, form }: FieldProps) => (
                     <Select
                       field={field}
@@ -186,7 +186,7 @@ const BookNew = () => {
                 }
                 errorMessage={errors.publishierId}
               >
-                <Field name="locationId">
+                <Field name="publishierId">
                   {({ field, form }: FieldProps) => (
                     <Select
                       field={field}
