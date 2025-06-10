@@ -22,7 +22,11 @@ export default defineConfig({
   build: {
     outDir: 'build'
   },
+  preview: {
+    port: 8080
+  },
   server: {
+    port: 3001,
     proxy: {
         '/api': {
             // config the target url based on your backend server

@@ -2,215 +2,221 @@ import { useMemo, useState, useEffect } from 'react'
 import Table from '@/components/ui/Table'
 import Input from '@/components/ui/Input'
 import {
-    useReactTable,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getFacetedRowModel,
-    getFacetedUniqueValues,
-    getFacetedMinMaxValues,
-    getPaginationRowModel,
-    getSortedRowModel,
-    flexRender,
+  useReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFacetedMinMaxValues,
+  getPaginationRowModel,
+  getSortedRowModel,
+  flexRender,
 } from '@tanstack/react-table'
 import { rankItem } from '@tanstack/match-sorter-utils'
-import type { ColumnDef, FilterFn, ColumnFiltersState } from '@tanstack/react-table'
+import type {
+  ColumnDef,
+  FilterFn,
+  ColumnFiltersState,
+} from '@tanstack/react-table'
 import type { InputHTMLAttributes } from 'react'
 import { bookstoreGetAll, IBookstore } from '@/services/bookstoreService'
+import dayjs from 'dayjs'
+import { useNavigate } from 'react-router-dom'
+import ReturnStatus from '@/components/custom/ReturnStatus'
 
-interface DebouncedInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'size' | 'prefix'> {
-    value: string | number
-    onChange: (value: string | number) => void
-    debounce?: number
+interface DebouncedInputProps
+  extends Omit<
+    InputHTMLAttributes<HTMLInputElement>,
+    'onChange' | 'size' | 'prefix'
+  > {
+  value: string | number
+  onChange: (value: string | number) => void
+  debounce?: number
 }
 
 const { Tr, Th, Td, THead, TBody, Sorter } = Table
 
 function DebouncedInput({
-    value: initialValue,
-    onChange,
-    debounce = 500,
-    ...props
+  value: initialValue,
+  onChange,
+  debounce = 500,
+  ...props
 }: DebouncedInputProps) {
-    const [value, setValue] = useState(initialValue)
+  const [value, setValue] = useState(initialValue)
 
-    useEffect(() => {
-        setValue(initialValue)
-    }, [initialValue])
+  useEffect(() => {
+    setValue(initialValue)
+  }, [initialValue])
 
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            onChange(value)
-        }, debounce)
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      onChange(value)
+    }, debounce)
 
-        return () => clearTimeout(timeout)
+    return () => clearTimeout(timeout)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [value])
+  }, [value])
 
-    return (
-        <div className="flex justify-end">
-            <div className="flex items-center mb-4">
-                <span className="mr-2">Search:</span>
-                <Input
-                    {...props}
-                    value={value}
-                    onChange={(e) => setValue(e.target.value)}
-                />
-            </div>
-        </div>
-    )
+  return (
+    <div className="w-full mb-4">
+      <Input
+        {...props}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+      />
+    </div>
+  )
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
-    // Rank the item
-    const itemRank = rankItem(row.getValue(columnId), value)
+  // Rank the item
+  const itemRank = rankItem(row.getValue(columnId), value)
 
-    // Store the itemRank info
-    addMeta({
-        itemRank,
-    })
+  // Store the itemRank info
+  addMeta({
+    itemRank,
+  })
 
-    // Return if the item should be filtered in/out
-    return itemRank.passed
+  // Return if the item should be filtered in/out
+  return itemRank.passed
 }
 
 const BookstoreList = () => {
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-    const [globalFilter, setGlobalFilter] = useState('')
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [globalFilter, setGlobalFilter] = useState('')
+  const navigate = useNavigate()
 
-    const columns = useMemo<ColumnDef<IBookstore>[]>(
-        () => [
-            { header: 'Título', accessorKey: 'book.title',  },
-            { header: 'ISBN', accessorKey: 'book.isbn' },
-            { header: 'Loja', accessorKey: 'store.name' },
-            { header: 'Estoque', accessorKey: 'book.amount' },
-            { header: 'Consg.', accessorKey: 'amount'},
-            {
-                header: 'Data Consig.',
-                accessorKey: 'consignmentDate',
-                cell: props => {
-                    const df = new Date(props.row.original.consignmentDate)
-                    return `${df.getDay()}/${df.getMonth()}/${df.getFullYear()}`
-                }
-            },
-            {
-                header: 'Validade',
-                accessorKey: 'returnDate',
-                cell: props => {
-                    const df = new Date(props.row.original.returnDate)
-                    return `${df.getDay()}/${df.getMonth()}/${df.getFullYear()}`
-                }
-            }
-        ],
-        []
-    )
-
-    const [bookstoreData, setBookStoreData] = useState<IBookstore[]>([])
-
-    useEffect(() => {
-        async function getBookstore() {
-            try {
-                const resp = await bookstoreGetAll()
-                setBookStoreData(resp.data);
-            } catch(e) {
-                console.log(e)
-            }
-        }
-        getBookstore()
-    }, [])
-
-    const table = useReactTable({
-        data: bookstoreData,
-        columns,
-        filterFns: {
-            fuzzy: fuzzyFilter,
+  const columns = useMemo<ColumnDef<IBookstore>[]>(
+    () => [
+      { header: 'Título', accessorKey: 'book.title' },
+      { header: 'ISBN', accessorKey: 'book.isbn' },
+      { header: 'Forncedor', accessorKey: 'store.name' },
+      { header: 'Quant.', accessorKey: 'amount' },
+      {
+        header: 'Entrada',
+        accessorKey: 'consignmentDate',
+        cell: (props) => {
+          const df = dayjs(new Date(props.row.original.consignmentDate))
+          return df.format('DD/MM/YYYY')
         },
-        state: {
-            columnFilters,
-            globalFilter,
-        },
-        onColumnFiltersChange: setColumnFilters,
-        onGlobalFilterChange: setGlobalFilter,
-        globalFilterFn: fuzzyFilter,
-        getCoreRowModel: getCoreRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        getFacetedRowModel: getFacetedRowModel(),
-        getFacetedUniqueValues: getFacetedUniqueValues(),
-        getFacetedMinMaxValues: getFacetedMinMaxValues(),
-        debugHeaders: true,
-        debugColumns: false,
-    })
-
-    return (
-        <>
-            <DebouncedInput
-                value={globalFilter ?? ''}
-                className="p-2 font-lg shadow border border-block"
-                placeholder="Search all columns..."
-                onChange={(value) => setGlobalFilter(String(value))}
+      },
+      {
+        header: 'Validade',
+        accessorKey: 'returnDate',
+        cell: (props) => {
+          return (
+            <ReturnStatus
+              returnDate={dayjs(new Date(props.row.original.returnDate))}
             />
-            <Table>
-                <THead>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <Tr key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => {
-                                return (
-                                    <Th
-                                        key={header.id}
-                                        colSpan={header.colSpan}
-                                    >
-                                        {header.isPlaceholder ? null : (
-                                            <div
-                                                {...{
-                                                    className:
-                                                        header.column.getCanSort()
-                                                            ? 'cursor-pointer select-none'
-                                                            : '',
-                                                    onClick:
-                                                        header.column.getToggleSortingHandler(),
-                                                }}
-                                            >
-                                                {flexRender(
-                                                    header.column.columnDef
-                                                        .header,
-                                                    header.getContext()
-                                                )}
-                                                {
-                                                    <Sorter
-                                                        sort={header.column.getIsSorted()}
-                                                    />
-                                                }
-                                            </div>
-                                        )}
-                                    </Th>
-                                )
-                            })}
-                        </Tr>
-                    ))}
-                </THead>
-                <TBody>
-                    {table.getRowModel().rows.map((row) => {
-                        return (
-                            <Tr key={row.id} /*onClick={() => navigate(`/estoque/${row.original.id}`)}*/>
-                                {row.getVisibleCells().map((cell) => {
-                                    return (
-                                        <Td key={cell.id}>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext(),
-                                            )}
-                                        </Td>
-                                    )
-                                })}
-                            </Tr>
-                        )
-                    })}
-                </TBody>
-            </Table>
-        </>
-    )
+          )
+        },
+      },
+    ],
+    [],
+  )
+
+  const [bookstoreData, setBookStoreData] = useState<IBookstore[]>([])
+
+  useEffect(() => {
+    async function getBookstore() {
+      try {
+        const { data } = await bookstoreGetAll()
+        setBookStoreData(data)
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    getBookstore()
+  }, [])
+
+  const table = useReactTable({
+    data: bookstoreData,
+    columns,
+    filterFns: {
+      fuzzy: fuzzyFilter,
+    },
+    state: {
+      columnFilters,
+      globalFilter,
+    },
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: fuzzyFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getFacetedMinMaxValues: getFacetedMinMaxValues(),
+    debugHeaders: true,
+    debugColumns: false,
+  })
+
+  return (
+    <>
+      <h3 className="mb-5">Consignados</h3>
+      <DebouncedInput
+        value={globalFilter ?? ''}
+        className="p-2 font-lg shadow border border-block"
+        placeholder="Buscar"
+        onChange={(value) => setGlobalFilter(String(value))}
+      />
+      <Table>
+        <THead>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <Tr key={headerGroup.id}>
+              {headerGroup.headers.map((header) => {
+                return (
+                  <Th key={header.id} colSpan={header.colSpan}>
+                    {header.isPlaceholder ? null : (
+                      <div
+                        {...{
+                          className: header.column.getCanSort()
+                            ? 'cursor-pointer select-none'
+                            : '',
+                          onClick: header.column.getToggleSortingHandler(),
+                        }}
+                      >
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                        {<Sorter sort={header.column.getIsSorted()} />}
+                      </div>
+                    )}
+                  </Th>
+                )
+              })}
+            </Tr>
+          ))}
+        </THead>
+        <TBody>
+          {table.getRowModel().rows.map((row) => {
+            return (
+              <Tr
+                key={row.id}
+                className="cursor-pointer"
+                onClick={() => navigate(`/consignado/${row.original.id}`)}
+              >
+                {row.getVisibleCells().map((cell) => {
+                  return (
+                    <Td key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </Td>
+                  )
+                })}
+              </Tr>
+            )
+          })}
+        </TBody>
+      </Table>
+    </>
+  )
 }
 
 export default BookstoreList

@@ -1,304 +1,517 @@
-import { bookstoreCreate, bookstoreGetAllByBookId, IBookstore, IBookstoreCreate } from "@/services/bookstoreService";
-import { ChangeEvent, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import Card from '@/components/ui/Card'
-import Button from '@/components/ui/Button'
-import Dialog from '@/components/ui/Dialog'
-import { bookGetOne, bookUpdate, IBook, IBookUpdate } from "@/services/bookService";
-import { IStore, storeGetAll } from "@/services/storeService";
-import Select from '@/components/ui/Select'
-import Input from '@/components/ui/Input'
-import DatePicker from '@/components/ui/DatePicker'
-import { ILoan, ILoanCreate, loanCreate, loanGetAllByBookId } from "@/services/loanService";
-import { branchGetAll, IBranch } from "@/services/branchService";
-import CardLoan from "@/components/custom/CardLoan";
-import CardBookstore from "@/components/custom/CardBookstore";
-import { IPublisher, publisherGetAll } from "@/services/publisherService";
+import {
+  bookGetOne,
+  bookUpdate,
+  IBook,
+  IBookCreate,
+  IBookUpdate,
+} from '@/services/bookService'
+import { DatePicker, Input, Select, Spinner, Button } from '@/components/ui'
+import { FormItem, FormContainer } from '@/components/ui/Form'
+import Tabs from '@/components/ui/Tabs'
+import { Formik, Field, Form, FieldProps } from 'formik'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import * as Yup from 'yup'
+import { IPublisher, publisherGetAll } from '@/services/publisherService'
+import { BsFileArrowDownFill, BsFileArrowUpFill } from 'react-icons/bs'
+import TableCompactBookstore from '@/components/custom/TableCompactBookstore'
+import { getBookstoreAmount, getLoanAmount } from '@/utils/amount'
+import TableCompactLoan from '@/components/custom/TableCompactLoan'
+import NewBookstore from '@/components/custom/NewBookstore'
+import {
+  bookstoreCreate,
+  bookstoreUpdate,
+  IBookstoreCreate,
+} from '@/services/bookstoreService'
+import { ILoanCreate, loanCreate, loanUpdate } from '@/services/loanService'
+import { expenseCreate, IExpenseCreate } from '@/services/expenseService'
+import NewLoan from '@/components/custom/NewLoan'
+import { IIncomingCreate, incomingCreate } from '@/services/incomingService'
+import NewAquisition from '@/components/custom/NewAquisition'
+import { ILocation, locationGetAll } from '@/services/locationService'
+import BackButton from '@/components/custom/BackButton'
 
-const BookstoreView = () => {
-    const [book, setBook] = useState<IBook | null>(null);
-    const [stores, setStores] = useState<IStore[]>([]);
-    const [branchs, setBranchs] = useState<IBranch[]>([]);
-    const [publishers, setPublishers] = useState<IPublisher[]>([]);
-    const [bookstore, setBookstore] = useState<IBookstore[] | null>(null);
-    const [loan, setLoan] = useState<ILoan[] | null>(null);
-    const [bookstoreForm, setBookstoreForm] = useState<IBookstoreCreate | null>(null);
-    const [loanForm, setLoanForm] = useState<ILoanCreate | null>(null);
-    const [bookStoreDialogIsOpen, setBookStoreDialogIsOpen] = useState(false)
-    const [loanDialogIsOpen, setLoanDialogIsOpen] = useState(false)
-    const [switcher, setSwitcher] = useState<boolean>(false);
-    const { id } = useParams();
+const validationSchema = Yup.object().shape({
+  title: Yup.string().required('Obrigatório'),
+  isbn: Yup.string()
+    .min(13, 'ISBN deve conter 13 caracteres')
+    .max(13, 'ISBN deve conter 13 caracteres')
+    .required('Obrigatório'),
+  author: Yup.string().required('Obrigatório'),
+  description: Yup.string().required('Obrigatório'),
+  publishierId: Yup.string().required('Obrigatório'),
+  publicationDate: Yup.string().required('Obrigatório'),
+  pages: Yup.string()
+    .required('Obrigatório')
+    .matches(/^(0|[1-9][0-9]*)$/),
+  edition: Yup.string()
+    .required('Obrigatório')
+    .matches(/^(0|[1-9][0-9]*)$/),
+  coverPrice: Yup.string()
+    .required()
+    .matches(/^(((\d+)(\.\d{3})*(,\d{2}))|(\d*))$/, 'Formato: 0,00'),
+})
 
-    const openBookStoreDialog = () => {
-        setBookStoreDialogIsOpen(true)
+const { TabNav, TabList, TabContent } = Tabs
+
+const BookView = () => {
+  const [book, setBook] = useState<IBook>()
+  const [publishers, setPublishers] = useState<IPublisher[]>([])
+  const [locations, setLocations] = useState<ILocation[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isEditing, setEditing] = useState<boolean>(false)
+  const { id } = useParams()
+
+  const handleSubmit = async (values: IBookUpdate) => {
+    setIsLoading(true)
+    try {
+      const { data } = await bookUpdate(Number(id), {
+        ...values,
+        pages: Number(values.pages),
+        edition: Number(values.edition),
+        publishierId: Number(values.publishierId),
+        coverPrice: values.coverPrice.toString().replace(',', '.'),
+      })
+      setBook(data)
+      setEditing(false)
+    } catch (e) {
+      console.log(e)
     }
+    setIsLoading(false)
+  }
 
-    const onBookStoreDialogClose = () => {
-        setBookStoreDialogIsOpen(false)
+  async function handleSubmitBookstore(values: IBookstoreCreate) {
+    try {
+      await bookstoreCreate({
+        ...values,
+        storeId: Number(values.storeId),
+        amount: Number(values.amount),
+        discount: values.discount.toString().replace(',', '.'),
+        tax: values.tax.toString().replace(',', '.'),
+      })
+      await bookUpdate(Number(id), {
+        amount: book.amount + Number(values.amount),
+      })
+      const { data } = await bookGetOne(Number(id))
+      setBook(data)
+    } catch (e) {
+      console.log(e)
     }
+  }
 
-    const onBookStoreDialogOk = async () => {
-        try {
-          await bookstoreCreate({...bookstoreForm, amount: Number(bookstoreForm.amount)})
-          const resp = await bookUpdate<IBook, IBookUpdate>(book.id, { amount: book.amount + Number(bookstoreForm.amount) })
-          setBook(resp.data);
-          setSwitcher(!switcher)
-        } catch (e) {
-          console.log(e)
-        }
-        setBookStoreDialogIsOpen(false)
+  async function handleSubmitLoan(values: ILoanCreate) {
+    try {
+      await loanCreate({
+        ...values,
+        discount: values.discount.toString().replace(',', '.'),
+        branchId: Number(values.branchId),
+        amount: Number(values.amount),
+      })
+      await bookUpdate(Number(id), {
+        amount: book.amount - Number(values.amount),
+      })
+      const { data } = await bookGetOne(Number(id))
+      setBook(data)
+    } catch (e) {
+      console.log(e)
     }
+  }
 
-    const openLoanDialog = () => {
-        setLoanDialogIsOpen(true)
+  async function handleSubmitExpense(
+    bookstoreId: number,
+    newBookAmount: number,
+    values: IExpenseCreate,
+  ) {
+    try {
+      await expenseCreate(values)
+      await bookstoreUpdate(bookstoreId, {
+        closed: true,
+        closedDate: new Date(),
+      })
+      await bookUpdate(Number(id), { amount: book.amount - newBookAmount })
+      const { data } = await bookGetOne(Number(id))
+      setBook(data)
+    } catch (e) {
+      console.log(e)
     }
+  }
 
-    const onLoanDialogClose = () => {
-        setLoanDialogIsOpen(false)
+  async function handleSubmitIncoming(
+    loanId: number,
+    returningAmount: number,
+    newIncoming: IIncomingCreate,
+  ) {
+    try {
+      await loanUpdate(loanId, {
+        closed: true,
+        closedDate: new Date(),
+        salesAmount: newIncoming.amount,
+      })
+      await incomingCreate(newIncoming)
+      await bookUpdate(Number(id), {
+        amount: book.amount + returningAmount,
+      })
+      const { data } = await bookGetOne(Number(id))
+      setBook(data)
+    } catch (e) {
+      console.log(e)
     }
+  }
 
-    const onLoanDialogOk = async () => {
-        try {
-          await loanCreate({...loanForm, amount: Number(loanForm.amount)})
-          await bookUpdate<IBook, IBookUpdate>(book.id, { amount: book.amount - Number(loanForm.amount) })
-          setSwitcher(!switcher)
-        } catch (e) {
-          console.log(e)
-        }
-        setLoanDialogIsOpen(false)
+  async function handleSubmitAquisition(values: IExpenseCreate) {
+    try {
+      await expenseCreate({
+        ...values,
+        totalValue: Number(values.totalValue.toString().replace(',', '.')),
+      })
+      await bookUpdate(Number(id), { amount: book.amount + values.amount })
+      const { data } = await bookGetOne(Number(id))
+      setBook(data)
+    } catch (e) {
+      console.log(e)
     }
+  }
 
-    function getTotalLoan(): number {
-      return loan?.reduce((acc, l) => (acc += l.amount), 0)
-    }
+  function getLoansFilter(isClosed: boolean) {
+    if (!book?.loans) return null
+    return book?.loans.filter((s) => s.closed === isClosed)
+  }
 
-    function handleChange(e: ChangeEvent<HTMLInputElement>) {
-        const { target } = e;
-        setBook({...book, [target.name]: target.value})
-    }
-    async function handleSubmit() {
-        try {
-          await bookUpdate(book.id, {
-            title: book.title,
-            isbn: book.isbn,
-            publicationDate: book.publicationDate,
-            description: book.description,
-            publishierId: Number(book.publishierId),
-            pages: Number(book.pages),
-            amount: Number(book.amount),
-            edition: Number(book.edition)
-          });
-        } catch (e) {
-          console.log(e);
-        }
-    }
-
-    function handleOnChangeBookstore (e: ChangeEvent<HTMLInputElement>) {
-      const { target } = e;
-      setBookstoreForm({ ...bookstoreForm, bookId: Number(id), [target.name]: target.value })
-    }
-
-    function handleOnChangeLoan (e: ChangeEvent<HTMLInputElement>) {
-      const { target } = e;
-      setLoanForm({ ...loanForm, bookId: Number(id), [target.name]: target.value })
-    }
-
-    useEffect(() => {
-      async function getLoans() {
-        try {
-            const resp = await loanGetAllByBookId(Number(id));
-            setLoan(resp.data);
-        } catch (e) {
-            console.log(e);
-        }
+  useEffect(() => {
+    const getData = async () => {
+      setIsLoading(true)
+      try {
+        const respBook = await bookGetOne(Number(id))
+        const respPublishers = await publisherGetAll()
+        const respLocations = await locationGetAll()
+        setBook(respBook.data)
+        setPublishers(respPublishers.data)
+        setLocations(respLocations.data)
+      } catch (e) {
+        console.log(e)
       }
-      getLoans();
-    }, [id, switcher]);
+      setIsLoading(false)
+    }
+    getData()
+  }, [id])
 
-    useEffect(() => {
-      async function getBookstores() {
-        try {
-            const resp = await bookstoreGetAllByBookId(Number(id));
-            setBookstore(resp.data);
-        } catch (e) {
-            console.log(e);
-        }
-      }
-      getBookstores();
-    }, [id, switcher]);
-
-    useEffect(() => {
-        async function getBook() {
-            try {
-                const resp = await bookGetOne(Number(id));
-                setBook(resp.data);
-            } catch (e) {
-                console.log(e);
-            }
-        }
-        getBook();
-    }, [id, switcher])
-
-    useEffect(() => {
-        async function getStores() {
-          try {
-              const resp = await storeGetAll();
-              setStores(resp.data);
-          } catch (e) {
-              console.log(e);
-          }
-        }
-        async function getBranchs() {
-          try {
-              const resp = await branchGetAll();
-              setBranchs(resp.data);
-          } catch (e) {
-              console.log(e);
-          }
-        }
-        async function getPublishers() {
-            try {
-                const resp = await publisherGetAll();
-                setPublishers(resp.data);
-            } catch (e) {
-                console.log(e);
-            }
-          }
-        
-        getStores();
-        getBranchs();
-        getPublishers();
-    }, [id]);
-
-    const cardFooter = (
-        <div className="flex justify-end">
-            <Button size="sm" variant="twoTone" className="ltr:mr-2 rtl:ml-2" color="green-600" onClick={openLoanDialog}>
-                Emprestar
-            </Button>
-            <Button size="sm" variant="twoTone" className="ltr:mr-2 rtl:ml-2" color="red-600" onClick={openBookStoreDialog}>
-                Consignar
-            </Button>
-            <Button size="sm" variant="solid" onClick={handleSubmit}>
-                Alterar
-            </Button>
-        </div>
-    )
-
-    return (
-        <>  {book &&
-            <div className="mb-5">
-                <Card
-                    header="Informações"
-                    footer={cardFooter}
-                >
-                    <Input placeholder="Título" name='title' className='mb-5' value={book?.title} onChange={handleChange} />
-                    <Input placeholder="ISBN" name='isbn' className='mb-5' value={book?.isbn} onChange={handleChange} />
-                    <DatePicker placeholder="Data de publicação" className='mb-5' value={book?.publicationDate} onChange={(date) => setBook({...book, publicationDate: date})} />
-                    <Input textArea placeholder="Descrição" name='description' value={book?.description} className='mb-5' onChange={handleChange} />
-                    <Input type='number' placeholder="Páginas" name='pages' value={book?.pages} className='mb-5' onChange={handleChange} />
-                    <Input placeholder="Quantidade" name='amount' className='mb-5' value={book?.amount} onChange={handleChange} />
-                    <Input type='number' placeholder="Edição" name='edition' value={book?.edition} className='mb-5' onChange={handleChange} />
-                    <Select
-                        placeholder="Editora"
-                        options={publishers?.map((p) => ({
+  return (
+    <>
+      <BackButton />
+      {!isLoading ? (
+        <>
+          <h1>{book?.title}</h1>
+          <h6 className="mb-5">ISBN: {book?.isbn}</h6>
+          <div className="flex justify-between items-center mb-5">
+            <div className="p-2 border-2 border-dotted rounded-md w-full flex">
+              <div className="text-center p-3 bg-gray-100 mr-3">
+                <p>Estoque</p>
+                <p className="font-bold text-4xl">{book?.amount}</p>
+              </div>
+              <div className="text-center p-3 bg-gray-100 mr-3">
+                <p>Consignados</p>
+                <p className="font-bold text-green-500 text-4xl">
+                  {book && getBookstoreAmount(book?.stores)}
+                </p>
+              </div>
+              <div className="text-center p-3 bg-gray-100 mr-3">
+                <p>Em vendas</p>
+                <p className="font-bold text-red-500 text-4xl">
+                  {book && getLoanAmount(getLoansFilter(false))}
+                </p>
+              </div>
+            </div>
+            <div className="ml-3">
+              <NewBookstore
+                bookId={Number(id)}
+                coverPrice={Number(book?.coverPrice)}
+                handleSubmitBookstore={handleSubmitBookstore}
+              />
+              <br />
+              <NewLoan
+                bookId={book?.id}
+                coverPrice={book?.coverPrice}
+                maxAmount={book?.amount}
+                handleSubmitLoan={handleSubmitLoan}
+              />
+              <br />
+              <NewAquisition
+                bookId={Number(id)}
+                handleSubmitAquisition={handleSubmitAquisition}
+              />
+            </div>
+          </div>
+          <Tabs defaultValue="tab1" className="mb-5">
+            <TabList>
+              <TabNav value="tab1" icon={<BsFileArrowDownFill />}>
+                Consignações
+              </TabNav>
+              <TabNav value="tab2" icon={<BsFileArrowUpFill />}>
+                Em vendas
+              </TabNav>
+            </TabList>
+            <TabContent value="tab1">
+              {book?.stores?.length > 0 ? (
+                <TableCompactBookstore
+                  book={book}
+                  handleSubmitLoan={handleSubmitLoan}
+                  handleSubmitExpense={handleSubmitExpense}
+                />
+              ) : (
+                <p className="p-3 italic text-center">Nada por aqui.</p>
+              )}
+            </TabContent>
+            <TabContent value="tab2">
+              {getLoansFilter(false)?.length > 0 ? (
+                <TableCompactLoan
+                  loans={getLoansFilter(false)}
+                  bookTitle={book?.title}
+                  coverPrice={book?.coverPrice}
+                  handleSubmitIncoming={handleSubmitIncoming}
+                />
+              ) : (
+                <p className="p-3 italic text-center">Nada por aqui.</p>
+              )}
+            </TabContent>
+          </Tabs>
+          <Formik
+            initialValues={{
+              title: book?.title,
+              isbn: book?.isbn,
+              author: book?.author,
+              description: book?.description,
+              locationId: book?.locationId,
+              publishierId: book?.publishierId,
+              publicationDate: new Date(book?.publicationDate),
+              pages: book?.pages,
+              edition: book?.edition,
+              coverPrice: book?.coverPrice.toString().replace('.', ','),
+            }}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ values, touched, errors }) => (
+              <Form>
+                <FormContainer>
+                  <FormItem
+                    label="Título"
+                    invalid={touched.title && errors.title ? true : false}
+                    errorMessage={errors.title?.toString()}
+                  >
+                    <Field
+                      type="text"
+                      autoComplete="off"
+                      name="title"
+                      placeholder="Título"
+                      component={Input}
+                      disabled={!isEditing}
+                    />
+                  </FormItem>
+                  <FormItem
+                    label="ISBN"
+                    invalid={errors.isbn && touched.isbn ? true : false}
+                    errorMessage={errors.isbn?.toString()}
+                  >
+                    <Field
+                      type="text"
+                      autoComplete="off"
+                      name="isbn"
+                      placeholder="ISBN"
+                      component={Input}
+                      disabled={!isEditing}
+                    />
+                  </FormItem>
+                  <FormItem
+                    label="Autor"
+                    invalid={errors.author && touched.author ? true : false}
+                    errorMessage={errors.author?.toString()}
+                  >
+                    <Field
+                      type="text"
+                      autoComplete="off"
+                      name="author"
+                      placeholder="Autor"
+                      component={Input}
+                      disabled={!isEditing}
+                    />
+                  </FormItem>
+                  <FormItem
+                    label="Descrição"
+                    invalid={
+                      errors.description && touched.description ? true : false
+                    }
+                    errorMessage={errors.description?.toString()}
+                  >
+                    <Field
+                      autoComplete="off"
+                      name="description"
+                      placeholder="Descrição"
+                      component={Input}
+                      textArea={true}
+                      disabled={!isEditing}
+                    />
+                  </FormItem>
+                  <FormItem
+                    label="Localização"
+                    invalid={
+                      errors.locationId && touched.locationId ? true : false
+                    }
+                    errorMessage={errors.locationId?.toString()}
+                  >
+                    <Field name="locationId">
+                      {({ field, form }: FieldProps<IBookCreate>) => (
+                        <Select
+                          field={field}
+                          isDisabled={!isEditing}
+                          form={form}
+                          options={locations.map((l) => ({
+                            value: l.id,
+                            label: l.title,
+                          }))}
+                          value={locations
+                            .filter((option) => option.id === values.locationId)
+                            .map((l) => ({
+                              value: l.id,
+                              label: l.title,
+                            }))}
+                          onChange={(option) =>
+                            form.setFieldValue(field.name, option?.value)
+                          }
+                        />
+                      )}
+                    </Field>
+                  </FormItem>
+                  <FormItem
+                    label="Editora"
+                    invalid={
+                      errors.publishierId && touched.publishierId ? true : false
+                    }
+                    errorMessage={errors.publishierId?.toString()}
+                  >
+                    <Field name="publishierId">
+                      {({ field, form }: FieldProps<IBookCreate>) => (
+                        <Select
+                          field={field}
+                          isDisabled={!isEditing}
+                          form={form}
+                          options={publishers.map((p) => ({
                             value: p.id,
                             label: p.name,
-                        }))}
-                        defaultValue={{value: book?.publishierId, label: book?.publishier.name}}
-                        className='mb-5'
-                        onChange={(data) => {setBook({...book, publishierId: data.value})}}
-                    ></Select>
-
-                    <div>
-                      <p>Quantidade: <span className="font-bold">{ book?.amount - getTotalLoan() }</span></p>
-                      <p>Quantidade Emprestada: <span className="font-bold">{ getTotalLoan() }</span></p>
-                      <p>Quantidade Total: <span className="font-bold">{ book?.amount + getTotalLoan() }</span></p>
-                    </div>
-                </Card>
-            </div>
-            }
-
-            <h3 className="mb-5 pb-3 border-b-2 text-green-600">Empréstimos</h3>
-            <div className="flex flex-wrap">
-                {loan?.map((l) => ( <CardLoan key={l.id} loan={l} setSwitcher={setSwitcher} switcher={switcher} /> ))}
-            </div>
-
-            <h3 className="mb-5 pb-3 border-b-2 text-red-600">Consignações</h3>
-            <div className="flex flex-wrap">
-                {bookstore?.map((b) => ( <CardBookstore key={b.id} bookstore={b} setSwitcher={setSwitcher} switcher={switcher} /> ))}
-            </div>
-
-            <Dialog
-                isOpen={bookStoreDialogIsOpen}
-                onClose={onBookStoreDialogClose}
-                onRequestClose={onBookStoreDialogClose}
-            >
-                <h5 className="mb-4">Consignar</h5>
-                <div>
-                    <Select
-                      name="storeId"
-                      placeholder="Selecione..."
-                      className="mb-3"
-                      options={stores.map((s) => ({
-                        value: s.id,
-                        label: s.name
-                      }))}
-                      onChange={(v) => setBookstoreForm({...bookstoreForm, storeId: v.value })}
-                    ></Select>
-                    <Input name="costPrice" prefix="$" suffix=".00" className="mb-3" value={bookstoreForm?.costPrice} onChange={handleOnChangeBookstore} />
-                    <Input name="amount" type="number" placeholder="Quantidade" className="mb-3" value={bookstoreForm?.amount} onChange={handleOnChangeBookstore} />
-                    <DatePicker name="returnDate" placeholder="Validade" className="mb-3" onChange={(date) => { setBookstoreForm({...bookstoreForm, returnDate: date}) }} />
-                </div>
-                <div className="text-right mt-6">
-                    <Button
-                        className="ltr:mr-2 rtl:ml-2"
-                        variant="plain"
-                        onClick={onBookStoreDialogClose}
+                          }))}
+                          value={publishers
+                            .filter(
+                              (option) => option.id === values.publishierId,
+                            )
+                            .map((p) => ({
+                              value: p.id,
+                              label: p.name,
+                            }))}
+                          onChange={(option) =>
+                            form.setFieldValue(field.name, option?.value)
+                          }
+                        />
+                      )}
+                    </Field>
+                  </FormItem>
+                  <FormItem
+                    label="Data de publicação"
+                    invalid={
+                      errors.publicationDate && touched.publicationDate
+                        ? true
+                        : false
+                    }
+                    errorMessage={String(errors.publicationDate)}
+                  >
+                    <Field
+                      name="publicationDate"
+                      placeholder="Data de publicação"
                     >
-                        Cancelar
-                    </Button>
-                    <Button variant="solid" onClick={onBookStoreDialogOk}>
-                        Confirmar
-                    </Button>
-                </div>
-            </Dialog>
-
-            <Dialog
-                isOpen={loanDialogIsOpen}
-                onClose={onLoanDialogClose}
-                onRequestClose={onLoanDialogClose}
-            >
-                <h5 className="mb-4">Emprestar</h5>
-                <div>
-                    <Select
-                      name="branchId"
-                      placeholder="Selecione..."
-                      className="mb-3"
-                      options={branchs.map((s) => ({
-                        value: s.id,
-                        label: s.name
-                      }))}
-                      onChange={(v) => setLoanForm({...loanForm, branchId: v.value })}
-                    ></Select>
-                    <Input name="salePrice" prefix="$" suffix=".00" value={loanForm?.salePrice} className="mb-3" onChange={handleOnChangeLoan} />
-                    <Input name="amount" type="number" placeholder="Quantidade" className="mb-3" value={loanForm?.amount} onChange={handleOnChangeLoan} />
-                    <DatePicker name="returnDate" placeholder="Validade" className="mb-3" onChange={(date) => { setLoanForm({...loanForm, returnDate: date}) }} />
-                </div>
-                <div className="text-right mt-6">
-                    <Button
-                        className="ltr:mr-2 rtl:ml-2"
-                        variant="plain"
-                        onClick={onLoanDialogClose}
-                    >
-                        Cancelar
-                    </Button>
-                    <Button variant="solid" onClick={onLoanDialogOk}>
-                        Confirmar
-                    </Button>
-                </div>
-            </Dialog>
+                      {({ field, form }: FieldProps<IBookCreate>) => (
+                        <DatePicker
+                          field={field}
+                          disabled={!isEditing}
+                          form={form}
+                          value={values.publicationDate}
+                          onChange={(date) => {
+                            form.setFieldValue(field.name, date)
+                          }}
+                        />
+                      )}
+                    </Field>
+                  </FormItem>
+                  <FormItem
+                    label="Páginas"
+                    invalid={errors.pages && touched.pages ? true : false}
+                    errorMessage={errors.pages?.toString()}
+                  >
+                    <Field
+                      type="text"
+                      autoComplete="off"
+                      name="pages"
+                      placeholder="Páginas"
+                      component={Input}
+                      disabled={!isEditing}
+                    />
+                  </FormItem>
+                  <FormItem
+                    label="Edição"
+                    invalid={errors.edition && touched.edition ? true : false}
+                    errorMessage={errors.edition?.toString()}
+                  >
+                    <Field
+                      type="text"
+                      autoComplete="off"
+                      name="edition"
+                      placeholder="Edição"
+                      component={Input}
+                      disabled={!isEditing}
+                    />
+                  </FormItem>
+                  <FormItem
+                    label="Preço de capa"
+                    invalid={
+                      errors.coverPrice && touched.coverPrice ? true : false
+                    }
+                    errorMessage={errors.coverPrice?.toString()}
+                  >
+                    <Field
+                      type="text"
+                      autoComplete="off"
+                      name="coverPrice"
+                      placeholder="00,00"
+                      component={Input}
+                      disabled={!isEditing}
+                    />
+                  </FormItem>
+                  <FormItem>
+                    {isEditing ? (
+                      <Button type="submit" variant="solid" className="w-48">
+                        Salvar
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="twoTone"
+                        className="w-48"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          setEditing(true)
+                        }}
+                      >
+                        Editar
+                      </Button>
+                    )}
+                  </FormItem>
+                </FormContainer>
+              </Form>
+            )}
+          </Formik>
         </>
-    )
+      ) : (
+        <Spinner />
+      )}
+    </>
+  )
 }
 
-export default BookstoreView;
+export default BookView
