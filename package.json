@@ -3,9 +3,9 @@
   "private": true,
   "version": "2.2.0",
   "scripts": {
-    "start": "vite",
+    "start": "vite --host",
     "build": "vite build",
-    "preview": "vite preview",
+    "preview": "vite preview --host",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "npm run lint -- --fix",
     "prettier": "npx prettier src --check",
