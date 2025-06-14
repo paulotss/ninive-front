@@ -1,6 +1,8 @@
 ## Livraria Nínive - frontend
 
-Sistema para gestão de estoque de livros, consiginções e vendas.
+Sistema para gestão de estoque de livros, consiginções e vendas.<br/>
+
+[![My Skills](https://skillicons.dev/icons?i=react,vite,docker)](https://skillicons.dev)
 
 ## Como rodar
 
